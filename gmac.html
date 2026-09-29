@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GMAC — Game Maker &amp; Creation</title>
+<style>
+:root{
+  --bg-0:#101216;
+  --bg-1:#181b21;
+  --bg-2:#1f232a;
+  --bg-3:#262b33;
+  --border:#31363f;
+  --border-soft:#2a2e35;
+  --text-0:#e8eaed;
+  --text-1:#a9b0bc;
+  --text-2:#6b7280;
+  --accent:#4f8ff7;
+  --accent-dim:#2c5aa8;
+  --accent-soft:rgba(79,143,247,0.16);
+  --warn:#f2a93b;
+  --danger:#e5484d;
+  --ok:#3ecf8e;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --radius:4px;
+  --topbar-h:38px;
+  --menubar-h:30px;
+  --toolbar-h:42px;
+  --statusbar-h:24px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;padding:0;}
+body{
+  background:var(--bg-0);
+  color:var(--text-0);
+  font-family:var(--sans);
+  font-size:13px;
+  overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+input,textarea,select{font-family:inherit;font-size:inherit;-webkit-user-select:text;user-select:text;}
+button{font-family:inherit;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#31363f;border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:#3d434e;}
+
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+
+/* ---------- Top identity bar ---------- */
+#topbar{
+  height:var(--topbar-h);
+  display:flex;align-items:center;gap:10px;
+  padding:0 10px;
+  background:var(--bg-1);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.gmac-logo{display:flex;align-items:center;gap:7px;}
+.gmac-logo svg{width:20px;height:20px;display:block;}
+.gmac-logo .lt{font-weight:700;font-size:13.5px;letter-spacing:0.3px;color:var(--text-0);}
+.gmac-logo .lt small{font-weight:500;color:var(--text-2);font-size:10px;display:block;letter-spacing:0.5px;margin-top:-2px;}
+#projname{color:var(--text-2);font-size:12px;padding-left:8px;border-left:1px solid var(--border);}
+#topbar .spacer{flex:1;}
+.topbar-icon-btn{
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius);background:transparent;border:none;color:var(--text-1);cursor:pointer;
+}
+.topbar-icon-btn:hover{background:var(--bg-3);color:var(--text-0);}
+.topbar-icon-btn svg{width:16px;height:16px;}
+
+/* ---------- Menu bar ---------- */
+#menubar{
+  height:var(--menubar-h);
+  display:flex;align-items:stretch;
+  background:var(--bg-1);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  position:relative;
+  z-index:40;
+}
+.menu-item{position:relative;}
+.menu-item>.menu-label{
+  height:100%;padding:0 12px;display:flex;align-items:center;
+  font-size:12px;color:var(--text-1);cursor:pointer;
+}
+.menu-item.open>.menu-label,.menu-item>.menu-label:hover{background:var(--bg-3);color:var(--text-0);}
+.menu-dropdown{
+  position:absolute;top:100%;left:0;min-width:210px;
+  background:var(--bg-2);border:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,0.45);
+  padding:4px;display:none;
+}
+.menu-item.open .menu-dropdown{display:block;}
+.menu-opt{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:3px;
+  color:var(--text-0);font-size:12px;cursor:pointer;white-space:nowrap;
+}
+.menu-opt:hover{background:var(--accent-soft);}
+.menu-opt .sc{margin-left:auto;color:var(--text-2);font-size:11px;}
+.menu-opt svg{width:14px;height:14px;flex-shrink:0;color:var(--text-1);}
+.menu-sep{height:1px;background:var(--border-soft);margin:4px 2px;}
+.menu-opt.disabled{color:var(--text-2);cursor:default;}
+.menu-opt.disabled:hover{background:none;}
+
+/* ---------- Toolbar ---------- */
+#toolbar{
+  height:var(--toolbar-h);
+  display:flex;align-items:center;gap:4px;
+  padding:0 8px;background:var(--bg-1);border-bottom:1px solid var(--border);
+  flex-shrink:0;overflow-x:auto;
+}
+.tool-group{display:flex;align-items:center;gap:2px;padding:0 6px;border-right:1px solid var(--border-soft);height:60%;}
+.tool-group:last-child{border-right:none;}
+.tbtn{
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:var(--radius);
+  color:var(--text-1);cursor:pointer;flex-shrink:0;
+}
+.tbtn svg{width:17px;height:17px;}
+.tbtn:hover{background:var(--bg-3);color:var(--text-0);}
+.tbtn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+.tbtn:disabled{opacity:0.35;cursor:default;}
+.tbtn:disabled:hover{background:transparent;color:var(--text-1);}
+.tbtn.play{color:var(--ok);}
+.tbtn.stop{color:var(--danger);}
+#zoomlabel{font-family:var(--mono);font-size:11px;color:var(--text-2);width:42px;text-align:center;flex-shrink:0;}
+
+/* ---------- Main layout ---------- */
+#workarea{flex:1;display:flex;min-height:0;position:relative;}
+.panel{
+  background:var(--bg-1);
+  display:flex;flex-direction:column;
+  min-width:0;min-height:0;
+}
+#leftpanel{width:230px;border-right:1px solid var(--border);flex-shrink:0;}
+#rightpanel{width:250px;border-left:1px solid var(--border);flex-shrink:0;}
+#centerpanel{flex:1;display:flex;flex-direction:column;min-width:0;}
+.resize-handle{width:5px;cursor:col-resize;background:transparent;flex-shrink:0;position:relative;z-index:5;}
+.resize-handle:hover,.resize-handle.active{background:var(--accent);}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg-1);}
+.tab{
+  padding:8px 12px;font-size:11.5px;color:var(--text-2);cursor:pointer;
+  border-bottom:2px solid transparent;letter-spacing:0.2px;
+}
+.tab:hover{color:var(--text-1);}
+.tab.active{color:var(--text-0);border-bottom-color:var(--accent);}
+.tabpane{display:none;flex:1;min-height:0;overflow-y:auto;flex-direction:column;}
+.tabpane.active{display:flex;}
+
+.panel-toolbar{display:flex;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid var(--border-soft);flex-shrink:0;}
+.panel-toolbar .fill{flex:1;}
+.mini-btn{
+  height:24px;padding:0 8px;display:flex;align-items:center;gap:5px;
+  background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);
+  color:var(--text-0);font-size:11px;cursor:pointer;
+}
+.mini-btn:hover{background:#2d323b;}
+.mini-btn svg{width:13px;height:13px;}
+.mini-icon-btn{width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:var(--text-1);cursor:pointer;border-radius:3px;}
+.mini-icon-btn:hover{background:var(--bg-3);color:var(--text-0);}
+.mini-icon-btn svg{width:14px;height:14px;}
+.search-box{
+  flex:1;height:24px;background:var(--bg-0);border:1px solid var(--border);border-radius:var(--radius);
+  padding:0 8px;color:var(--text-0);font-size:11.5px;
+}
+
+/* ---------- Hierarchy ---------- */
+#hierarchy-list{flex:1;overflow-y:auto;padding:4px 0;}
+.tree-row{
+  display:flex;align-items:center;gap:5px;padding:5px 8px 5px calc(8px + var(--depth,0)*14px);
+  font-size:12px;color:var(--text-1);cursor:pointer;border-left:2px solid transparent;
+  white-space:nowrap;
+}
+.tree-row:hover{background:var(--bg-2);}
+.tree-row.selected{background:var(--accent-soft);border-left-color:var(--accent);color:var(--text-0);}
+.tree-row svg.obj-icon{width:13px;height:13px;flex-shrink:0;color:var(--text-2);}
+.tree-row .tname{overflow:hidden;text-overflow:ellipsis;flex:1;}
+.tree-row .tname input{background:var(--bg-0);border:1px solid var(--accent);color:var(--text-0);width:100%;border-radius:2px;padding:1px 3px;}
+.tree-row .trow-actions{display:none;gap:2px;flex-shrink:0;}
+.tree-row:hover .trow-actions,.tree-row.selected .trow-actions{display:flex;}
+.trow-actions button{width:18px;height:18px;background:none;border:none;color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.trow-actions button:hover{color:var(--text-0);}
+.trow-actions svg{width:12px;height:12px;}
+.tree-row.dim{opacity:0.45;}
+.empty-hint{padding:18px 12px;color:var(--text-2);font-size:11.5px;line-height:1.6;text-align:center;}
+
+/* ---------- Assets ---------- */
+#assets-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;padding:8px;align-content:start;}
+.asset-tile{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:grab;padding:4px;border-radius:var(--radius);border:1px solid transparent;}
+.asset-tile:hover{background:var(--bg-2);border-color:var(--border);}
+.asset-tile.selected{border-color:var(--accent);background:var(--accent-soft);}
+.asset-thumb{width:56px;height:56px;border-radius:3px;background:var(--bg-0);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.asset-thumb img{max-width:100%;max-height:100%;image-rendering:pixelated;}
+.asset-thumb svg{width:22px;height:22px;color:var(--text-2);}
+.asset-name{font-size:10px;color:var(--text-1);max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.asset-cat-label{padding:6px 10px 2px;font-size:10.5px;color:var(--text-2);letter-spacing:0.4px;flex-basis:100%;}
+
+/* ---------- Center / Viewport ---------- */
+#viewport-wrap{flex:1;position:relative;min-height:0;background:#0c0d10;overflow:hidden;}
+#viewport{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+#viewport-hud{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:10.5px;color:#7fe3a6;background:rgba(10,12,15,0.7);padding:6px 8px;border-radius:3px;line-height:1.5;pointer-events:none;display:none;white-space:pre;}
+#playbar{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:rgba(20,22,27,0.92);border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;font-size:11px;color:var(--ok);display:none;align-items:center;gap:8px;
+}
+#playbar.show{display:flex;}
+#playbar b{color:var(--text-0);}
+#playbar button{background:none;border:none;color:var(--text-1);cursor:pointer;width:20px;height:20px;}
+#playbar button svg{width:14px;height:14px;}
+
+#mobile-joy{position:absolute;left:26px;bottom:26px;width:104px;height:104px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);display:none;touch-action:none;}
+#mobile-joy .stick{position:absolute;width:44px;height:44px;left:30px;top:30px;border-radius:50%;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3);}
+#mobile-jump{position:absolute;right:26px;bottom:26px;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:10px;letter-spacing:0.5px;display:none;align-items:center;justify-content:center;touch-action:none;}
+
+/* ---------- Bottom panel ---------- */
+#bottompanel{height:170px;border-top:1px solid var(--border);background:var(--bg-1);display:flex;flex-direction:column;flex-shrink:0;}
+.hresize-handle{height:5px;cursor:row-resize;background:transparent;flex-shrink:0;}
+.hresize-handle:hover,.hresize-handle.active{background:var(--accent);}
+#console-list{flex:1;overflow-y:auto;font-family:var(--mono);font-size:11px;padding:4px 8px;}
+.console-line{padding:2px 0;display:flex;gap:8px;border-bottom:1px solid rgba(255,255,255,0.02);}
+.console-line .ctime{color:var(--text-2);flex-shrink:0;}
+.console-line.log{color:var(--text-1);}
+.console-line.warn{color:var(--warn);}
+.console-line.error{color:var(--danger);}
+
+#events-list{flex:1;overflow-y:auto;padding:6px;}
+.rule-card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:8px;margin-bottom:6px;}
+.rule-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.rule-row:last-child{margin-bottom:0;}
+.rule-tag{font-size:10px;color:var(--text-2);letter-spacing:0.4px;width:38px;flex-shrink:0;}
+select,.field-input{
+  background:var(--bg-0);border:1px solid var(--border);color:var(--text-0);
+  border-radius:3px;padding:4px 6px;font-size:11.5px;min-width:0;
+}
+select:focus,.field-input:focus{outline:none;border-color:var(--accent);}
+.rule-del{margin-left:auto;background:none;border:none;color:var(--text-2);cursor:pointer;width:20px;height:20px;flex-shrink:0;}
+.rule-del svg{width:13px;height:13px;}
+.rule-del:hover{color:var(--danger);}
+
+#vars-list{flex:1;overflow-y:auto;padding:6px;}
+.var-row{display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid var(--border-soft);}
+.var-row input.vname{flex:1.2;}
+.var-row select.vtype{flex:0.8;}
+.var-row input.vval{flex:1;}
+
+/* ---------- Inspector ---------- */
+#inspector{flex:1;overflow-y:auto;padding:0;}
+.insp-empty{padding:24px 14px;color:var(--text-2);font-size:12px;text-align:center;line-height:1.6;}
+.insp-section{border-bottom:1px solid var(--border-soft);padding:10px 12px;}
+.insp-title{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-0);font-weight:600;margin-bottom:8px;letter-spacing:0.2px;}
+.insp-title svg{width:13px;height:13px;color:var(--accent);}
+.insp-title .rm{margin-left:auto;background:none;border:none;color:var(--text-2);cursor:pointer;width:18px;height:18px;}
+.insp-title .rm:hover{color:var(--danger);}
+.insp-title .rm svg{width:12px;height:12px;color:inherit;}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.field{display:flex;flex-direction:column;gap:3px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:10px;color:var(--text-2);letter-spacing:0.3px;}
+.field input,.field select{width:100%;}
+.field-row{display:flex;align-items:center;gap:6px;padding:4px 0;}
+.field-row label{font-size:11px;color:var(--text-1);flex:1;}
+.field-row .field-input{width:76px;}
+.checkbox-row{display:flex;align-items:center;gap:7px;padding:3px 0;}
+.checkbox-row input{width:14px;height:14px;accent-color:var(--accent);}
+.checkbox-row label{font-size:11.5px;color:var(--text-1);}
+.name-input{width:100%;background:var(--bg-0);border:1px solid var(--border);color:var(--text-0);border-radius:3px;padding:6px 8px;font-size:12.5px;font-weight:600;}
+.add-component-btn{width:100%;margin-top:4px;justify-content:center;}
+.component-menu{position:relative;}
+.component-dropdown{position:absolute;bottom:100%;left:0;right:0;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 -6px 18px rgba(0,0,0,0.4);max-height:220px;overflow-y:auto;margin-bottom:4px;display:none;z-index:20;}
+.component-dropdown.open{display:block;}
+.thumb-picker{display:flex;align-items:center;gap:8px;}
+.thumb-picker .pv{width:40px;height:40px;border-radius:3px;background:var(--bg-0);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+.thumb-picker .pv img{max-width:100%;max-height:100%;image-rendering:pixelated;}
+
+/* ---------- Status bar ---------- */
+#statusbar{
+  height:var(--statusbar-h);display:flex;align-items:center;gap:14px;padding:0 10px;
+  background:var(--bg-1);border-top:1px solid var(--border);font-size:10.5px;color:var(--text-2);flex-shrink:0;
+}
+#statusbar .sep{width:1px;height:12px;background:var(--border);}
+
+/* ---------- Drawers (tablet/mobile) ---------- */
+.drawer-scrim{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:60;display:none;}
+.drawer-scrim.show{display:block;}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;background:var(--bg-1);border-top:1px solid var(--border);
+  border-radius:12px 12px 0 0;z-index:61;max-height:72vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .18s ease;box-shadow:0 -10px 30px rgba(0,0,0,0.5);
+}
+.sheet.show{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:8px auto 4px;flex-shrink:0;}
+.sheet-header{display:flex;align-items:center;padding:4px 12px 8px;flex-shrink:0;}
+.sheet-header .st{font-size:12.5px;font-weight:600;color:var(--text-0);}
+.sheet-header .close-sheet{margin-left:auto;background:none;border:none;color:var(--text-2);width:24px;height:24px;}
+/* ================= RESPONSIVE MODES ================= */
+body.mode-tablet #leftpanel{width:190px;}
+body.mode-tablet #rightpanel{width:210px;}
+
+body.mode-mobile #leftpanel,
+body.mode-mobile #rightpanel{display:none;}
+body.mode-mobile .resize-handle{display:none;}
+body.mode-mobile #menubar{display:none;}
+body.mode-mobile #topbar{padding:0 8px;}
+body.mode-mobile .tbtn{width:40px;height:40px;}
+body.mode-mobile .tbtn svg{width:19px;height:19px;}
+body.mode-mobile #toolbar{height:52px;}
+body.mode-mobile #bottompanel{display:none;}
+body.mode-mobile #statusbar{display:none;}
+body.mode-mobile .mini-btn,body.mode-mobile .mini-icon-btn{height:34px;}
+body.mode-mobile .mini-icon-btn{width:34px;}
+body.mode-mobile.playing #mobile-joy,
+body.mode-mobile.playing #mobile-jump{display:flex;}
+
+body.mode-mobile.orientation-landscape #leftpanel{
+  display:flex;position:absolute;left:0;top:0;bottom:0;width:50px;z-index:10;border-right:1px solid var(--border);
+}
+body.mode-mobile.orientation-landscape #rightpanel{
+  display:flex;position:absolute;right:0;top:0;bottom:0;width:190px;z-index:10;
+}
+body.mode-tablet.playing #mobile-joy,
+body.mode-tablet.playing #mobile-jump{display:flex;}
+
+.hide-desktop{display:none;}
+body.mode-mobile .hide-mobile,body.mode-tablet .hide-mobile{display:none;}
+body.mode-mobile .hide-desktop{display:flex;}
+
+/* Left panel becomes a slide-in drawer only while explicitly opened on mobile */
+body.mode-mobile #leftpanel.drawer-open{
+  display:flex;position:fixed;top:0;bottom:0;left:0;width:78vw;max-width:300px;z-index:62;
+  border-right:1px solid var(--border);box-shadow:8px 0 24px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+<body class="mode-desktop">
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <button class="topbar-icon-btn hide-desktop" id="btn-open-leftdrawer" title="Panels"></button>
+    <div class="gmac-logo" id="logo-mark"></div>
+    <div id="projname">Untitled Project</div>
+    <div class="spacer"></div>
+    <button class="topbar-icon-btn" id="btn-mode-badge" title="Layout mode" style="color:var(--text-2);font-size:9px;font-family:var(--mono);width:auto;padding:0 6px;">DESKTOP</button>
+  </div>
+
+  <!-- MENU BAR -->
+  <div id="menubar">
+    <div class="menu-item" data-menu="file">
+      <div class="menu-label">File</div>
+      <div class="menu-dropdown">
+        <div class="menu-opt" data-act="new-project"></div>
+        <div class="menu-opt" data-act="open-project"></div>
+        <div class="menu-sep"></div>
+        <div class="menu-opt" data-act="save-project"><span class="sc">Ctrl+S</span></div>
+        <div class="menu-opt" data-act="save-as-project"></div>
+        <div class="menu-sep"></div>
+        <div class="menu-opt" data-act="export-html"></div>
+        <div class="menu-opt" data-act="export-zip"></div>
+        <div class="menu-sep" id="recent-sep" style="display:none;"></div>
+        <div id="recent-projects-menu"></div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="edit">
+      <div class="menu-label">Edit</div>
+      <div class="menu-dropdown">
+        <div class="menu-opt" data-act="undo"><span class="sc">Ctrl+Z</span></div>
+        <div class="menu-opt" data-act="redo"><span class="sc">Ctrl+Y</span></div>
+        <div class="menu-sep"></div>
+        <div class="menu-opt" data-act="copy"><span class="sc">Ctrl+C</span></div>
+        <div class="menu-opt" data-act="paste"><span class="sc">Ctrl+V</span></div>
+        <div class="menu-opt" data-act="duplicate"><span class="sc">Ctrl+D</span></div>
+        <div class="menu-opt" data-act="delete-obj"><span class="sc">Del</span></div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="view">
+      <div class="menu-label">View</div>
+      <div class="menu-dropdown">
+        <div class="menu-opt" data-act="toggle-grid"></div>
+        <div class="menu-opt" data-act="toggle-snap"></div>
+        <div class="menu-opt" data-act="zoom-reset"><span class="sc">Ctrl+0</span></div>
+        <div class="menu-sep"></div>
+        <div class="menu-opt" data-act="toggle-debug"><span class="sc">F3</span></div>
+      </div>
+    </div>
+    <div class="menu-item" data-menu="help">
+      <div class="menu-label">Help</div>
+      <div class="menu-dropdown">
+        <div class="menu-opt" data-act="about"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <div class="tool-group">
+      <button class="tbtn" data-tool="select" title="Select (V)"></button>
+      <button class="tbtn" data-tool="move" title="Move (M)"></button>
+      <button class="tbtn" data-tool="scale" title="Scale (S)"></button>
+      <button class="tbtn" data-tool="rotate" title="Rotate (R)"></button>
+    </div>
+    <div class="tool-group">
+      <button class="tbtn" id="btn-undo" title="Undo (Ctrl+Z)"></button>
+      <button class="tbtn" id="btn-redo" title="Redo (Ctrl+Y)"></button>
+    </div>
+    <div class="tool-group">
+      <button class="tbtn" id="btn-add-object" title="Add Object"></button>
+      <button class="tbtn" id="btn-delete-object" title="Delete Object"></button>
+    </div>
+    <div class="tool-group">
+      <button class="tbtn" id="btn-grid" title="Toggle Grid"></button>
+      <button class="tbtn" id="btn-snap" title="Toggle Snap"></button>
+      <button class="tbtn" id="btn-zoom-out" title="Zoom Out"></button>
+      <span id="zoomlabel">100%</span>
+      <button class="tbtn" id="btn-zoom-in" title="Zoom In"></button>
+    </div>
+    <div class="tool-group" style="flex:1;border-right:none;"></div>
+    <div class="tool-group" style="border-right:none;">
+      <button class="tbtn" id="btn-export" title="Export"></button>
+      <button class="tbtn play" id="btn-play" title="Play"></button>
+    </div>
+  </div>
+
+  <!-- WORK AREA -->
+  <div id="workarea">
+    <!-- LEFT PANEL -->
+    <div class="panel" id="leftpanel">
+      <div class="tabs">
+        <div class="tab active" data-tab="hierarchy">Hierarchy</div>
+        <div class="tab" data-tab="assets">Assets</div>
+      </div>
+      <div class="tabpane active" data-pane="hierarchy" style="flex-direction:column;">
+        <div class="panel-toolbar">
+          <input class="search-box" id="hier-search" placeholder="Search objects...">
+          <button class="mini-icon-btn" id="btn-add-object-2" title="Add Object"></button>
+        </div>
+        <div id="hierarchy-list"></div>
+      </div>
+      <div class="tabpane" data-pane="assets" style="flex-direction:column;">
+        <div class="panel-toolbar">
+          <button class="mini-btn" id="btn-import-sprite"></button>
+          <button class="mini-btn" id="btn-import-audio"></button>
+        </div>
+        <input type="file" id="file-import-image" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple style="display:none;">
+        <input type="file" id="file-import-audio" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" multiple style="display:none;">
+        <div id="assets-grid"></div>
+      </div>
+    </div>
+    <div class="resize-handle" id="resize-left"></div>
+
+    <!-- CENTER PANEL -->
+    <div class="panel" id="centerpanel">
+      <div id="viewport-wrap">
+        <canvas id="viewport"></canvas>
+        <div id="viewport-hud"></div>
+        <div id="playbar"><span>● <b>PLAYING</b></span><button id="btn-stop-inline" title="Stop"></button></div>
+        <div id="mobile-joy"><div class="stick"></div></div>
+        <div id="mobile-jump">JUMP</div>
+      </div>
+      <div class="hresize-handle" id="resize-bottom"></div>
+      <div id="bottompanel">
+        <div class="tabs">
+          <div class="tab active" data-tab="console">Console</div>
+          <div class="tab" data-tab="events">Events</div>
+          <div class="tab" data-tab="variables">Variables</div>
+        </div>
+        <div class="tabpane active" data-pane="console">
+          <div class="panel-toolbar">
+            <span style="font-size:10.5px;color:var(--text-2);">Runtime log</span>
+            <div class="fill"></div>
+            <button class="mini-icon-btn" id="btn-clear-console" title="Clear"></button>
+          </div>
+          <div id="console-list"></div>
+        </div>
+        <div class="tabpane" data-pane="events">
+          <div class="panel-toolbar">
+            <span style="font-size:10.5px;color:var(--text-2);">Global rules — when / then</span>
+            <div class="fill"></div>
+            <button class="mini-btn" id="btn-add-rule"></button>
+          </div>
+          <div id="events-list"></div>
+        </div>
+        <div class="tabpane" data-pane="variables">
+          <div class="panel-toolbar">
+            <span style="font-size:10.5px;color:var(--text-2);">Global variables</span>
+            <div class="fill"></div>
+            <button class="mini-btn" id="btn-add-var"></button>
+          </div>
+          <div id="vars-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="resize-handle" id="resize-right"></div>
+    <!-- RIGHT PANEL -->
+    <div class="panel" id="rightpanel">
+      <div class="tabs"><div class="tab active">Inspector</div></div>
+      <div id="inspector"><div class="insp-empty">Tidak ada object yang dipilih.<br>Pilih object di Hierarchy atau tambahkan object baru.</div></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="statusbar">
+    <span id="status-scene">Scene: Main</span>
+    <span class="sep"></span>
+    <span id="status-objcount">0 objects</span>
+    <span class="sep"></span>
+    <span id="status-selection">No selection</span>
+    <div style="flex:1;"></div>
+    <span id="status-tool">Tool: Select</span>
+  </div>
+</div>
+
+<!-- Mobile sheets / drawers -->
+<div class="drawer-scrim" id="scrim"></div>
+<div class="sheet" id="sheet-inspector">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header"><span class="st">Inspector</span><button class="close-sheet" data-close="sheet-inspector"></button></div>
+  <div id="inspector-mobile-slot" style="overflow-y:auto;padding-bottom:16px;"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   ICON MANAGER — original inline SVG icon set (no emoji, currentColor)
+   ========================================================================= */
+const IconManager = (function(){
+  const P = {
+    logo:'<svg viewBox="0 0 32 32" fill="none"><rect x="2" y="2" width="28" height="28" rx="6" fill="#1b1e24" stroke="#4f8ff7" stroke-width="1.5"/><path d="M9 20V12L16 17L23 12V20" stroke="#4f8ff7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    select:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 3L19 12L12 13.5L9.5 20L5 3Z" fill="currentColor"/></svg>',
+    move:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3V21M3 12H21M6 6L3 9M3 9L6 12M3 9H8M18 6L21 9M21 9L18 12M21 9H16M6 18L3 15M3 15L6 12M18 18L21 15M21 15L18 12"/></svg>',
+    scale:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="14" width="6" height="6"/><path d="M10 14L20 4M20 4H14M20 4V10"/></svg>',
+    rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 1 0 18.5 16"/><path d="M20 5V11H14"/></svg>',
+    undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7L4 11L8 15"/><path d="M4 11H14.5A5.5 5.5 0 0 1 20 16.5V16.5A5.5 5.5 0 0 1 14.5 22H12"/></svg>',
+    redo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7L20 11L16 15"/><path d="M20 11H9.5A5.5 5.5 0 0 0 4 16.5V16.5A5.5 5.5 0 0 0 9.5 22H12"/></svg>',
+    add:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>',
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7H20M9 7V4.5A1.5 1.5 0 0 1 10.5 3H13.5A1.5 1.5 0 0 1 15 4.5V7M18 7L17.3 19.2A2 2 0 0 1 15.3 21H8.7A2 2 0 0 1 6.7 19.2L6 7"/></svg>',
+    grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M9 3V21M15 3V21M3 9H21M3 15H21"/></svg>',
+    snap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3V6M12 18V21M3 12H6M18 12H21"/></svg>',
+    zoomIn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20L15 15M10.5 8V13M8 10.5H13"/></svg>',
+    zoomOut:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20L15 15M8 10.5H13"/></svg>',
+    play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4L20 12L7 20V4Z"/></svg>',
+    stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>',
+    export:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3V15M12 3L8 7M12 3L16 7M5 15V19A2 2 0 0 0 7 21H17A2 2 0 0 0 19 19V15"/></svg>',
+    folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9.5L11.5 7H19.5A1.5 1.5 0 0 1 21 8.5V17.5A1.5 1.5 0 0 1 19.5 19H4.5A1.5 1.5 0 0 1 3 17.5V6.5Z"/></svg>',
+    save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4H16L20 8V19A1 1 0 0 1 19 20H5A1 1 0 0 1 4 19V5A1 1 0 0 1 5 4Z"/><path d="M8 4V9H16V4"/><path d="M8 20V14H16V20"/></svg>',
+    settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5A1.7 1.7 0 0 0 20.7 12A1.7 1.7 0 0 0 19.4 10.5L18.3 10.2A6.6 6.6 0 0 0 17.6 8.6L18.1 7.5A1.7 1.7 0 0 0 15.6 5L14.5 5.5A6.6 6.6 0 0 0 12.9 4.8L12.6 3.7A1.7 1.7 0 0 0 11.1 2.4A1.7 1.7 0 0 0 9.6 3.7L9.3 4.8A6.6 6.6 0 0 0 7.7 5.5L6.6 5A1.7 1.7 0 0 0 4.1 7.5L4.6 8.6A6.6 6.6 0 0 0 3.9 10.2L2.8 10.5A1.7 1.7 0 0 0 1.5 12A1.7 1.7 0 0 0 2.8 13.5L3.9 13.8A6.6 6.6 0 0 0 4.6 15.4L4.1 16.5A1.7 1.7 0 0 0 6.6 19L7.7 18.5A6.6 6.6 0 0 0 9.3 19.2L9.6 20.3"/></svg>',
+    sprite:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><path d="M3 16L8 11L13 16M13 14L16 11L21 16"/></svg>',
+    audio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6L15 3V21L9 18V6Z"/><path d="M4 9V15H9"/><path d="M17.5 9A5 5 0 0 1 17.5 15"/></svg>',
+    collision:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2"><rect x="4" y="4" width="16" height="16" rx="1"/></svg>',
+    camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 8A1 1 0 0 1 5 7H8L9.5 5H14.5L16 7H19A1 1 0 0 1 20 8V17A1 1 0 0 1 19 18H5A1 1 0 0 1 4 17V8Z"/><circle cx="12" cy="12.5" r="3.2"/></svg>',
+    rigidbody:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4V12L17 15"/></svg>',
+    controller:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9H17A4 4 0 0 1 21 13V15A2.5 2.5 0 0 1 16.8 16.8L15 15H9L7.2 16.8A2.5 2.5 0 0 1 3 15V13A4 4 0 0 1 7 9Z"/><path d="M8 12H10M9 11V13"/><circle cx="15" cy="12.3" r="0.6" fill="currentColor"/><circle cx="16.5" cy="13.6" r="0.6" fill="currentColor"/></svg>',
+    text:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 6H19M12 6V19"/></svg>',
+    object:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z"/></svg>',
+    eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12S5.5 5.5 12 5.5S22 12 22 12S18.5 18.5 12 18.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.7"/></svg>',
+    eyeOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3L21 21M10.6 10.6A2.7 2.7 0 0 0 12 15A2.7 2.7 0 0 0 14.6 12.6M9.1 5.5A10.6 10.6 0 0 1 12 5.5C18.5 5.5 22 12 22 12A15.6 15.6 0 0 1 18.4 16.2M6.5 6.9C4 8.6 2 12 2 12S5.5 18.5 12 18.5A9.7 9.7 0 0 0 15.4 17.9"/></svg>',
+    lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M8 10V7A4 4 0 0 1 16 7V10"/></svg>',
+    unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M8 10V7A4 4 0 0 1 15.4 5.4"/></svg>',
+    duplicate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M4 16V5A1 1 0 0 1 5 4H16"/></svg>',
+    rename:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20H8L18.5 9.5A2.1 2.1 0 0 0 15.5 6.5L5 17V20Z"/></svg>',
+    close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6L18 18M6 18L18 6"/></svg>',
+    chevronDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9L12 15L18 9"/></svg>',
+    menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6H20M4 12H20M4 18H20"/></svg>'
+  };
+  return { get:(name,size)=>{ let s = P[name] || P.object; if(size){ s = s.replace('<svg ', `<svg style="width:${size}px;height:${size}px" `);} return s; } };
+})();
+
+/* =========================================================================
+   UTILITIES
+   ========================================================================= */
+const Util = {
+  uid: (p)=> (p||'obj')+'_'+Math.random().toString(36).slice(2,9),
+  clone: (o)=> JSON.parse(JSON.stringify(o)),
+  clamp: (v,a,b)=> Math.max(a,Math.min(b,v)),
+  download(filename, blobOrString, mime){
+    const blob = blobOrString instanceof Blob ? blobOrString : new Blob([blobOrString], {type: mime||'application/octet-stream'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  },
+  readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); },
+  dataURLtoBytes(dataurl){
+    const comma = dataurl.indexOf(',');
+    const b64 = dataurl.slice(comma+1);
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+    return arr;
+  },
+  extFromMime(mime){
+    if(!mime) return 'bin';
+    if(mime.includes('png')) return 'png';
+    if(mime.includes('jpeg')||mime.includes('jpg')) return 'jpg';
+    if(mime.includes('webp')) return 'webp';
+    if(mime.includes('svg')) return 'svg';
+    if(mime.includes('mpeg')||mime.includes('mp3')) return 'mp3';
+    if(mime.includes('wav')) return 'wav';
+    if(mime.includes('ogg')) return 'ogg';
+    return 'bin';
+  },
+  fmtTime(){ const d=new Date(); return d.toTimeString().slice(0,8); }
+};
+
+/* =========================================================================
+   MINIMAL ZIP WRITER (STORE method, real CRC32 + valid ZIP structure)
+   ========================================================================= */
+const ZipWriter = (function(){
+  let crcTable = null;
+  function makeCrcTable(){
+    const table = new Uint32Array(256);
+    for(let n=0;n<256;n++){
+      let c = n;
+      for(let k=0;k<8;k++){ c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); }
+      table[n] = c >>> 0;
+    }
+    return table;
+  }
+  function crc32(bytes){
+    if(!crcTable) crcTable = makeCrcTable();
+    let crc = 0xFFFFFFFF;
+    for(let i=0;i<bytes.length;i++){ crc = (crcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8)) >>> 0; }
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function u16(v){ return [v & 0xFF, (v>>>8)&0xFF]; }
+  function u32(v){ return [v&0xFF,(v>>>8)&0xFF,(v>>>16)&0xFF,(v>>>24)&0xFF]; }
+  function strBytes(s){ const arr=[]; for(let i=0;i<s.length;i++) arr.push(s.charCodeAt(i)&0xFF); return arr; }
+  function dosDateTime(){
+    const d = new Date();
+    const time = ((d.getHours()&0x1F)<<11) | ((d.getMinutes()&0x3F)<<5) | ((d.getSeconds()>>1)&0x1F);
+    const date = (((d.getFullYear()-1980)&0x7F)<<9) | (((d.getMonth()+1)&0xF)<<5) | (d.getDate()&0x1F);
+    return {time,date};
+  }
+  // files: [{name:'index.html', data:Uint8Array}]
+  function build(files){
+    const {time,date} = dosDateTime();
+    let localChunks = [];
+    let centralChunks = [];
+    let offset = 0;
+    for(const f of files){
+      const nameBytes = strBytes(f.name);
+      const data = f.data instanceof Uint8Array ? f.data : new Uint8Array(f.data);
+      const crc = crc32(data);
+      const localHeader = new Uint8Array([
+        0x50,0x4B,0x03,0x04, 20,0, 0,0, 0,0,
+        ...u16(time), ...u16(date),
+        ...u32(crc), ...u32(data.length), ...u32(data.length),
+        ...u16(nameBytes.length), ...u16(0)
+      ]);
+      localChunks.push(localHeader, new Uint8Array(nameBytes), data);
+      const centralHeader = new Uint8Array([
+        0x50,0x4B,0x01,0x02, 20,0, 20,0, 0,0, 0,0,
+        ...u16(time), ...u16(date),
+        ...u32(crc), ...u32(data.length), ...u32(data.length),
+        ...u16(nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0),
+        ...u32(0), ...u32(offset)
+      ]);
+      centralChunks.push(centralHeader, new Uint8Array(nameBytes));
+      offset += localHeader.length + nameBytes.length + data.length;
+    }
+    const centralSize = centralChunks.reduce((a,c)=>a+c.length,0);
+    const centralOffset = offset;
+    const eocd = new Uint8Array([
+      0x50,0x4B,0x05,0x06, 0,0, 0,0,
+      ...u16(files.length), ...u16(files.length),
+      ...u32(centralSize), ...u32(centralOffset), ...u16(0)
+    ]);
+    const total = offset + centralSize + eocd.length;
+    const out = new Uint8Array(total);
+    let p = 0;
+    for(const c of localChunks){ out.set(c,p); p += c.length; }
+    for(const c of centralChunks){ out.set(c,p); p += c.length; }
+    out.set(eocd,p);
+    return out;
+  }
+  return { build, crc32 };
+})();
+
+/* =========================================================================
+   APP STATE
+   ========================================================================= */
+function defaultProject(){
+  return {
+    name: 'Untitled Project',
+    version: '1.0.0',
+    width: 960, height: 540,
+    variables: [
+      {id: Util.uid('var'), name:'score', type:'number', value:0},
+      {id: Util.uid('var'), name:'health', type:'number', value:100}
+    ],
+    events: [], // global rules
+    assets: { sprites: [], audio: [] },
+    scenes: [ defaultScene('Main') ],
+    activeSceneId: null,
+    settings: { gravity: 1400 }
+  };
+}
+function defaultScene(name){
+  const id = Util.uid('scene');
+  return { id, name, objects: [], camera: {x:0,y:0,zoom:1}, gridSize:32 };
+}
+function makeObject(type, x, y){
+  const id = Util.uid('go');
+  const base = {
+    id, name: type.charAt(0).toUpperCase()+type.slice(1)+'_'+id.slice(-4),
+    x: x||0, y: y||0, width:64, height:64, rotation:0, scaleX:1, scaleY:1,
+    visible:true, locked:false, layer:'World', opacity:1,
+    components: {}
+  };
+  return base;
+}
+
+const App = {
+  project: null,
+  scene: null,
+  selectedId: null,
+  tool: 'select',
+  showGrid: true,
+  snap: true,
+  camera: {x:0,y:0,zoom:1},
+  clipboard: null,
+  playing: false,
+  debug: false,
+  history: [],
+  historyIndex: -1,
+  currentFileHandleName: null,
+  responsiveMode: 'desktop',
+  orientation: 'landscape',
+};
+
+function pushHistory(){
+  const snap = { project: Util.clone(App.project), sceneId: App.scene.id, selectedId: App.selectedId };
+  App.history = App.history.slice(0, App.historyIndex+1);
+  App.history.push(snap);
+  if(App.history.length > 50) App.history.shift();
+  App.historyIndex = App.history.length-1;
+  updateUndoRedoButtons();
+}
+function restoreHistory(snap){
+  App.project = Util.clone(snap.project);
+  App.scene = App.project.scenes.find(s=>s.id===snap.sceneId) || App.project.scenes[0];
+  App.selectedId = snap.selectedId;
+  refreshAll();
+}
+function undo(){
+  if(App.historyIndex <= 0) return;
+  App.historyIndex--;
+  restoreHistory(App.history[App.historyIndex]);
+  logConsole('Undo', 'log');
+}
+function redo(){
+  if(App.historyIndex >= App.history.length-1) return;
+  App.historyIndex++;
+  restoreHistory(App.history[App.historyIndex]);
+  logConsole('Redo', 'log');
+}
+function updateUndoRedoButtons(){
+  $('#btn-undo').disabled = App.historyIndex <= 0;
+  $('#btn-redo').disabled = App.historyIndex >= App.history.length-1;
+}
+
+function newProject(){
+  App.project = defaultProject();
+  App.project.activeSceneId = App.project.scenes[0].id;
+  App.scene = App.project.scenes[0];
+  App.selectedId = null;
+  App.camera = {x:0,y:0,zoom:1};
+  App.history = []; App.historyIndex = -1;
+  pushHistory();
+  refreshAll();
+  logConsole('New project created.', 'log');
+}
+
+function $(sel, root){ return (root||document).querySelector(sel); }
+function $all(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+
+function getObject(id){ return App.scene.objects.find(o=>o.id===id); }
+
+/* =========================================================================
+   CONSOLE
+   ========================================================================= */
+function logConsole(msg, level){
+  level = level || 'log';
+  const wrap = $('#console-list');
+  const line = el('div', 'console-line '+level);
+  line.innerHTML = `<span class="ctime">[${Util.fmtTime()}]</span><span>${escapeHtml(String(msg))}</span>`;
+  wrap.appendChild(line);
+  wrap.scrollTop = wrap.scrollHeight;
+  while(wrap.children.length > 300) wrap.removeChild(wrap.firstChild);
+}
+function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+const _origError = console.error, _origWarn = console.warn;
+console.error = function(...a){ _origError.apply(console,a); try{ logConsole(a.join(' '), 'error'); }catch(e){} };
+console.warn = function(...a){ _origWarn.apply(console,a); try{ logConsole(a.join(' '), 'warn'); }catch(e){} };
+window.addEventListener('error', (e)=>{ logConsole('Error: '+e.message, 'error'); });
+
+/* =========================================================================
+   RESPONSIVE UI MANAGER
+   ========================================================================= */
+const ResponsiveUIManager = {
+  compute(){
+    const w = window.innerWidth, h = window.innerHeight;
+    const touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    const orientation = w >= h ? 'landscape' : 'portrait';
+    let mode = 'desktop';
+    if(w < 700 || (touch && w < 900)) mode = 'mobile';
+    else if(w < 1100) mode = 'tablet';
+    if(touch && w < 1100 && orientation==='portrait') mode = 'mobile';
+    return {mode, orientation, touch};
+  },
+  apply(){
+    const {mode, orientation} = this.compute();
+    App.responsiveMode = mode; App.orientation = orientation;
+    document.body.classList.remove('mode-desktop','mode-tablet','mode-mobile');
+    document.body.classList.add('mode-'+mode);
+    document.body.classList.toggle('orientation-landscape', orientation==='landscape');
+    document.body.classList.toggle('orientation-portrait', orientation==='portrait');
+    $('#btn-mode-badge').textContent = mode.toUpperCase();
+    if(mode !== 'mobile'){ $('#leftpanel').classList.remove('drawer-open'); $('#scrim').classList.remove('show'); }
+    resizeCanvas();
+  },
+  init(){
+    window.addEventListener('resize', ()=>this.apply());
+    window.addEventListener('orientationchange', ()=>setTimeout(()=>this.apply(),80));
+    this.apply();
+  }
+};
+
+/* =========================================================================
+   ICONS -> DOM bind
+   ========================================================================= */
+function bindIcons(){
+  $('#logo-mark').innerHTML = IconManager.get('logo',20) + '<div class="lt">GMAC<small>GAME MAKER &amp; CREATION</small></div>';
+  $('#btn-open-leftdrawer').innerHTML = IconManager.get('menu');
+  const map = {
+    '[data-tool="select"]':'select', '[data-tool="move"]':'move', '[data-tool="scale"]':'scale', '[data-tool="rotate"]':'rotate',
+    '#btn-undo':'undo', '#btn-redo':'redo', '#btn-add-object':'add', '#btn-add-object-2':'add', '#btn-delete-object':'trash',
+    '#btn-grid':'grid', '#btn-snap':'snap', '#btn-zoom-out':'zoomOut', '#btn-zoom-in':'zoomIn',
+    '#btn-export':'export', '#btn-play':'play', '#btn-stop-inline':'stop',
+    '#btn-import-sprite':'sprite', '#btn-import-audio':'audio', '#btn-clear-console':'trash', '#btn-add-rule':'add', '#btn-add-var':'add',
+    '[data-close="sheet-inspector"]':'close'
+  };
+  for(const sel in map){
+    $all(sel).forEach(node=>{
+      if(sel.startsWith('#btn-import') || sel==='#btn-add-rule' || sel==='#btn-add-var'){
+        const label = sel==='#btn-import-sprite'?'Import Sprite':sel==='#btn-import-audio'?'Import Audio':sel==='#btn-add-rule'?'Add Rule':'Add Variable';
+        node.innerHTML = IconManager.get(map[sel]) + '<span>'+label+'</span>';
+      } else {
+        node.innerHTML = IconManager.get(map[sel]);
+      }
+    });
+  }
+  // menu icons
+  const menuIcon = (act)=>({ 'new-project':'add','open-project':'folder','save-project':'save','save-as-project':'save',
+    'export-html':'export','export-zip':'export','undo':'undo','redo':'redo','copy':'duplicate','paste':'duplicate',
+    'duplicate':'duplicate','delete-obj':'trash','toggle-grid':'grid','toggle-snap':'snap','zoom-reset':'zoomIn',
+    'toggle-debug':'settings','about':'settings' }[act] || 'object');
+  const labels = { 'new-project':'New Project','open-project':'Open Project...','save-project':'Save','save-as-project':'Save As...',
+    'export-html':'Export Single HTML','export-zip':'Export ZIP','undo':'Undo','redo':'Redo','copy':'Copy','paste':'Paste',
+    'duplicate':'Duplicate','delete-obj':'Delete','toggle-grid':'Toggle Grid','toggle-snap':'Toggle Snap','zoom-reset':'Reset Zoom',
+    'toggle-debug':'Toggle Debugger (F3)','about':'About GMAC' };
+  $all('.menu-opt[data-act]').forEach(node=>{
+    const act = node.dataset.act;
+    const sc = node.querySelector('.sc');
+    node.innerHTML = IconManager.get(menuIcon(act)) + '<span>'+labels[act]+'</span>';
+    if(sc) node.appendChild(sc);
+  });
+}
+
+/* =========================================================================
+   HIERARCHY
+   ========================================================================= */
+function renderHierarchy(){
+  const wrap = $('#hierarchy-list');
+  wrap.innerHTML = '';
+  const q = ($('#hier-search').value||'').toLowerCase();
+  const objs = App.scene.objects.filter(o=> !q || o.name.toLowerCase().includes(q));
+  if(objs.length===0){
+    wrap.appendChild(el('div','empty-hint','Belum ada object.<br>Klik tombol + untuk menambah, atau drag sprite dari tab Assets.'));
+  }
+  objs.forEach(obj=>{
+    const row = el('div','tree-row'+(obj.id===App.selectedId?' selected':'')+(!obj.visible?' dim':''));
+    let icon = 'object';
+    if(obj.components.SpriteRenderer) icon='sprite';
+    if(obj.components.Camera) icon='camera';
+    if(obj.components.TextRenderer) icon='text';
+    row.innerHTML = `${IconManager.get(icon)}<span class="tname">${escapeHtml(obj.name)}</span>`;
+    const actions = el('div','trow-actions');
+    const btnVis = el('button', null, IconManager.get(obj.visible?'eye':'eyeOff'));
+    btnVis.title='Show/Hide';
+    btnVis.onclick=(e)=>{ e.stopPropagation(); obj.visible=!obj.visible; pushHistory(); renderHierarchy(); };
+    const btnLock = el('button', null, IconManager.get(obj.locked?'lock':'unlock'));
+    btnLock.title='Lock/Unlock';
+    btnLock.onclick=(e)=>{ e.stopPropagation(); obj.locked=!obj.locked; pushHistory(); renderHierarchy(); };
+    const btnDup = el('button', null, IconManager.get('duplicate'));
+    btnDup.title='Duplicate';
+    btnDup.onclick=(e)=>{ e.stopPropagation(); duplicateObject(obj.id); };
+    const btnDel = el('button', null, IconManager.get('trash'));
+    btnDel.title='Delete';
+    btnDel.onclick=(e)=>{ e.stopPropagation(); deleteObject(obj.id); };
+    actions.append(btnVis, btnLock, btnDup, btnDel);
+    row.appendChild(actions);
+    row.querySelector('.tname').ondblclick=(e)=>{
+      e.stopPropagation();
+      const span = row.querySelector('.tname');
+      const input = document.createElement('input');
+      input.value = obj.name;
+      span.innerHTML=''; span.appendChild(input); input.focus(); input.select();
+      const commit = ()=>{ obj.name = input.value.trim()||obj.name; pushHistory(); renderHierarchy(); renderInspector(); };
+      input.onblur = commit;
+      input.onkeydown = (ev)=>{ if(ev.key==='Enter') input.blur(); };
+    };
+    row.onclick = ()=> selectObject(obj.id);
+    wrap.appendChild(row);
+  });
+  $('#status-objcount').textContent = App.scene.objects.length + ' objects';
+}
+function selectObject(id){
+  App.selectedId = id;
+  renderHierarchy(); renderInspector();
+  const obj = getObject(id);
+  $('#status-selection').textContent = obj ? ('Selected: '+obj.name) : 'No selection';
+  if(App.responsiveMode === 'mobile'){ $('#leftpanel').classList.remove('drawer-open'); $('#scrim').classList.remove('show'); }
+  if(App.responsiveMode !== 'desktop' && obj) openSheet('sheet-inspector');
+}
+function addObject(type, x, y){
+  type = type || 'empty';
+  const centerX = x!=null?x:(App.project.width/2);
+  const centerY = y!=null?y:(App.project.height/2);
+  const obj = makeObject(type, centerX-32, centerY-32);
+  if(type==='sprite') obj.components.SpriteRenderer = { assetId:null, flipX:false, flipY:false, tint:'#ffffff' };
+  App.scene.objects.push(obj);
+  pushHistory();
+  renderHierarchy();
+  selectObject(obj.id);
+  logConsole('Object created: '+obj.name);
+}
+function deleteObject(id){
+  const idx = App.scene.objects.findIndex(o=>o.id===id);
+  if(idx<0) return;
+  const name = App.scene.objects[idx].name;
+  App.scene.objects.splice(idx,1);
+  if(App.selectedId===id) App.selectedId=null;
+  pushHistory();
+  renderHierarchy(); renderInspector();
+  logConsole('Object deleted: '+name);
+}
+function duplicateObject(id){
+  const obj = getObject(id);
+  if(!obj) return;
+  const copy = Util.clone(obj);
+  copy.id = Util.uid('go');
+  copy.name = obj.name+'_copy';
+  copy.x += 20; copy.y += 20;
+  App.scene.objects.push(copy);
+  pushHistory();
+  renderHierarchy();
+  selectObject(copy.id);
+}
+
+/* =========================================================================
+   ASSETS
+   ========================================================================= */
+function renderAssets(){
+  const grid = $('#assets-grid');
+  grid.innerHTML = '';
+  grid.appendChild(el('div','asset-cat-label','SPRITES ('+App.project.assets.sprites.length+')'));
+  App.project.assets.sprites.forEach(a=>{
+    const tile = el('div','asset-tile');
+    tile.draggable = true;
+    tile.innerHTML = `<div class="asset-thumb"><img src="${a.data}" alt=""></div><div class="asset-name">${escapeHtml(a.name)}</div>`;
+    tile.ondragstart = (e)=>{ e.dataTransfer.setData('text/gmac-asset', JSON.stringify({kind:'sprite', id:a.id})); };
+    tile.ondblclick = ()=>{
+      addSpriteObjectFromAsset(a, App.project.width/2, App.project.height/2);
+    };
+    grid.appendChild(tile);
+  });
+  grid.appendChild(el('div','asset-cat-label','AUDIO ('+App.project.assets.audio.length+')'));
+  App.project.assets.audio.forEach(a=>{
+    const tile = el('div','asset-tile');
+    tile.innerHTML = `<div class="asset-thumb">${IconManager.get('audio')}</div><div class="asset-name">${escapeHtml(a.name)}</div>`;
+    grid.appendChild(tile);
+  });
+}
+function addSpriteObjectFromAsset(asset, x, y){
+  const obj = makeObject('sprite', x-32, y-32);
+  obj.components.SpriteRenderer = { assetId: asset.id, flipX:false, flipY:false, tint:'#ffffff' };
+  if(asset.w && asset.h){ obj.width = Math.min(asset.w,128); obj.height = Math.min(asset.h,128); }
+  App.scene.objects.push(obj);
+  pushHistory();
+  renderHierarchy();
+  selectObject(obj.id);
+  logConsole('Sprite object created from asset: '+asset.name);
+}
+function importImages(files){
+  const arr = Array.from(files);
+  let pending = arr.length;
+  arr.forEach(file=>{
+    Util.readAsDataURL(file).then(dataUrl=>{
+      const img = new Image();
+      img.onload = ()=>{
+        App.project.assets.sprites.push({ id: Util.uid('spr'), name:file.name, data:dataUrl, mime:file.type, w:img.width, h:img.height });
+        pending--;
+        if(pending<=0){ pushHistory(); renderAssets(); }
+      };
+      img.src = dataUrl;
+    });
+  });
+  logConsole('Importing '+arr.length+' image(s)...');
+}
+function importAudio(files){
+  const arr = Array.from(files);
+  let pending = arr.length;
+  arr.forEach(file=>{
+    Util.readAsDataURL(file).then(dataUrl=>{
+      App.project.assets.audio.push({ id: Util.uid('aud'), name:file.name, data:dataUrl, mime:file.type });
+      pending--;
+      if(pending<=0){ pushHistory(); renderAssets(); }
+    });
+  });
+  logConsole('Importing '+arr.length+' audio file(s)...');
+}
+
+/* =========================================================================
+   INSPECTOR
+   ========================================================================= */
+const COMPONENT_DEFS = {
+  SpriteRenderer: { icon:'sprite', label:'Sprite Renderer', def:()=>({assetId:null, flipX:false, flipY:false, tint:'#ffffff'}) },
+  Collider: { icon:'collision', label:'Collider', def:()=>({shape:'rect', isTrigger:false, offsetX:0, offsetY:0, w:64, h:64}) },
+  RigidBody: { icon:'rigidbody', label:'Rigid Body', def:()=>({gravityScale:1, mass:1, friction:0.2, restitution:0, vx:0, vy:0}) },
+  PlayerController: { icon:'controller', label:'Player Controller', def:()=>({speed:220, jumpForce:620, airControl:0.5}) },
+  Camera: { icon:'camera', label:'Camera', def:()=>({zoom:1, followTarget:'', smoothness:0.12, useBounds:false, boundsX:0, boundsY:0, boundsW:1920, boundsH:1080}) },
+  AudioSource: { icon:'audio', label:'Audio Source', def:()=>({assetId:null, volume:1, loop:false, autoplay:false}) },
+  TextRenderer: { icon:'text', label:'Text Renderer', def:()=>({text:'Score: 0', font:'sans-serif', size:20, color:'#ffffff', align:'left'}) },
+  Animator: { icon:'sprite', label:'Animator (Sprite Sheet)', def:()=>({cols:1, rows:1, frameCount:1, fps:8, loop:true, playing:false, _frame:0, _t:0}) }
+};
+function renderInspector(){
+  const obj = App.selectedId ? getObject(App.selectedId) : null;
+  const target = $('#inspector');
+  const mobileTarget = $('#inspector-mobile-slot');
+  const html = buildInspectorHTML(obj);
+  target.innerHTML = html;
+  if(mobileTarget) mobileTarget.innerHTML = html;
+  [target, mobileTarget].forEach(root=>{ if(root) wireInspector(root, obj); });
+}
+function buildInspectorHTML(obj){
+  if(!obj) return '<div class="insp-empty">Tidak ada object yang dipilih.<br>Pilih object di Hierarchy atau tambahkan object baru.</div>';
+  let h = '';
+  h += `<div class="insp-section"><input class="name-input" id="insp-name" value="${escapeHtml(obj.name)}"></div>`;
+  h += `<div class="insp-section"><div class="insp-title">${IconManager.get('move',13)}Transform</div>
+    <div class="field-grid">
+      <div class="field"><label>Position X</label><input class="field-input" data-field="x" type="number" value="${obj.x}"></div>
+      <div class="field"><label>Position Y</label><input class="field-input" data-field="y" type="number" value="${obj.y}"></div>
+      <div class="field"><label>Width</label><input class="field-input" data-field="width" type="number" value="${obj.width}"></div>
+      <div class="field"><label>Height</label><input class="field-input" data-field="height" type="number" value="${obj.height}"></div>
+      <div class="field"><label>Rotation</label><input class="field-input" data-field="rotation" type="number" value="${obj.rotation}"></div>
+      <div class="field"><label>Opacity</label><input class="field-input" data-field="opacity" type="number" step="0.1" min="0" max="1" value="${obj.opacity}"></div>
+      <div class="field"><label>Scale X</label><input class="field-input" data-field="scaleX" type="number" step="0.1" value="${obj.scaleX}"></div>
+      <div class="field"><label>Scale Y</label><input class="field-input" data-field="scaleY" type="number" step="0.1" value="${obj.scaleY}"></div>
+      <div class="field"><label>Layer</label>
+        <select data-field="layer">${['Background','World','Player','Enemy','Foreground','UI'].map(l=>`<option ${obj.layer===l?'selected':''}>${l}</option>`).join('')}</select>
+      </div>
+    </div></div>`;
+  Object.keys(obj.components).forEach(cname=>{
+    const def = COMPONENT_DEFS[cname]; if(!def) return;
+    const c = obj.components[cname];
+    h += `<div class="insp-section" data-comp="${cname}"><div class="insp-title">${IconManager.get(def.icon,13)}${def.label}<button class="rm" data-rmcomp="${cname}">${IconManager.get('close',12)}</button></div>`;
+    h += componentFieldsHTML(cname, c, obj);
+    h += `</div>`;
+  });
+  h += `<div class="insp-section component-menu">
+    <button class="mini-btn add-component-btn" id="insp-add-comp">${IconManager.get('add',13)}<span>Add Component</span></button>
+    <div class="component-dropdown" id="comp-dropdown">
+      ${Object.keys(COMPONENT_DEFS).map(k=>`<div class="menu-opt" data-addcomp="${k}">${IconManager.get(COMPONENT_DEFS[k].icon)}<span>${COMPONENT_DEFS[k].label}</span></div>`).join('')}
+    </div>
+  </div>`;
+  return h;
+}
+function componentFieldsHTML(cname, c, obj){
+  switch(cname){
+    case 'SpriteRenderer': {
+      const asset = App.project.assets.sprites.find(a=>a.id===c.assetId);
+      return `<div class="thumb-picker" style="margin-bottom:8px;">
+        <div class="pv">${asset?`<img src="${asset.data}">`:IconManager.get('sprite',20)}</div>
+        <select data-cfield="assetId" style="flex:1;"><option value="">-- pilih sprite --</option>${App.project.assets.sprites.map(a=>`<option value="${a.id}" ${a.id===c.assetId?'selected':''}>${escapeHtml(a.name)}</option>`).join('')}</select>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="flipX" ${c.flipX?'checked':''}><label>Flip X</label></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="flipY" ${c.flipY?'checked':''}><label>Flip Y</label></div>`;
+    }
+    case 'Collider':
+      return `<div class="field-row"><label>Shape</label><select class="field-input" data-cfield="shape"><option ${c.shape==='rect'?'selected':''}>rect</option><option ${c.shape==='circle'?'selected':''}>circle</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="isTrigger" ${c.isTrigger?'checked':''}><label>Is Trigger</label></div>
+      <div class="field-row"><label>Width</label><input class="field-input" type="number" data-cfield="w" value="${c.w}"></div>
+      <div class="field-row"><label>Height</label><input class="field-input" type="number" data-cfield="h" value="${c.h}"></div>`;
+    case 'RigidBody':
+      return `<div class="field-row"><label>Gravity Scale</label><input class="field-input" type="number" step="0.1" data-cfield="gravityScale" value="${c.gravityScale}"></div>
+      <div class="field-row"><label>Mass</label><input class="field-input" type="number" step="0.1" data-cfield="mass" value="${c.mass}"></div>
+      <div class="field-row"><label>Friction</label><input class="field-input" type="number" step="0.05" data-cfield="friction" value="${c.friction}"></div>
+      <div class="field-row"><label>Bounce</label><input class="field-input" type="number" step="0.05" data-cfield="restitution" value="${c.restitution}"></div>`;
+    case 'PlayerController':
+      return `<div class="field-row"><label>Speed</label><input class="field-input" type="number" data-cfield="speed" value="${c.speed}"></div>
+      <div class="field-row"><label>Jump Force</label><input class="field-input" type="number" data-cfield="jumpForce" value="${c.jumpForce}"></div>
+      <div class="field-row"><label>Air Control</label><input class="field-input" type="number" step="0.1" data-cfield="airControl" value="${c.airControl}"></div>`;
+    case 'Camera':
+      return `<div class="field-row"><label>Zoom</label><input class="field-input" type="number" step="0.1" data-cfield="zoom" value="${c.zoom}"></div>
+      <div class="field-row"><label>Follow Target</label><select class="field-input" data-cfield="followTarget"><option value="">-- none --</option>${App.scene.objects.filter(o=>o.id!==obj.id).map(o=>`<option value="${o.name}" ${o.name===c.followTarget?'selected':''}>${escapeHtml(o.name)}</option>`).join('')}</select></div>
+      <div class="field-row"><label>Smoothness</label><input class="field-input" type="number" step="0.01" data-cfield="smoothness" value="${c.smoothness}"></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="useBounds" ${c.useBounds?'checked':''}><label>Use Bounds</label></div>`;
+    case 'AudioSource': {
+      return `<select data-cfield="assetId" style="width:100%;margin-bottom:6px;"><option value="">-- pilih audio --</option>${App.project.assets.audio.map(a=>`<option value="${a.id}" ${a.id===c.assetId?'selected':''}>${escapeHtml(a.name)}</option>`).join('')}</select>
+      <div class="field-row"><label>Volume</label><input class="field-input" type="number" step="0.1" min="0" max="1" data-cfield="volume" value="${c.volume}"></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="loop" ${c.loop?'checked':''}><label>Loop</label></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="autoplay" ${c.autoplay?'checked':''}><label>Autoplay</label></div>`;
+    }
+    case 'TextRenderer':
+      return `<div class="field full"><label>Text</label><input class="field-input" style="width:100%;" data-cfield="text" value="${escapeHtml(c.text)}"></div>
+      <div class="field-row"><label>Size</label><input class="field-input" type="number" data-cfield="size" value="${c.size}"></div>
+      <div class="field-row"><label>Color</label><input class="field-input" type="color" data-cfield="color" value="${c.color}"></div>`;
+    case 'Animator':
+      return `<div class="field-row"><label>Columns</label><input class="field-input" type="number" data-cfield="cols" value="${c.cols}"></div>
+      <div class="field-row"><label>Rows</label><input class="field-input" type="number" data-cfield="rows" value="${c.rows}"></div>
+      <div class="field-row"><label>Frame Count</label><input class="field-input" type="number" data-cfield="frameCount" value="${c.frameCount}"></div>
+      <div class="field-row"><label>FPS</label><input class="field-input" type="number" data-cfield="fps" value="${c.fps}"></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="loop" ${c.loop?'checked':''}><label>Loop</label></div>
+      <div class="checkbox-row"><input type="checkbox" data-cbool="playing" ${c.playing?'checked':''}><label>Auto-play in editor</label></div>`;
+    default: return '';
+  }
+}
+function wireInspector(root, obj){
+  if(!obj) return;
+  const nameInput = root.querySelector('#insp-name');
+  if(nameInput) nameInput.onchange = ()=>{ obj.name = nameInput.value.trim()||obj.name; pushHistory(); renderHierarchy(); };
+  root.querySelectorAll('[data-field]').forEach(inp=>{
+    inp.onchange = ()=>{
+      const f = inp.dataset.field;
+      obj[f] = inp.type==='number' ? parseFloat(inp.value)||0 : inp.value;
+      pushHistory();
+    };
+  });
+  root.querySelectorAll('[data-cfield]').forEach(inp=>{
+    inp.onchange = ()=>{
+      const section = inp.closest('[data-comp]');
+      const cname = section.dataset.comp;
+      const f = inp.dataset.cfield;
+      const val = inp.type==='number' ? (parseFloat(inp.value)||0) : inp.value;
+      obj.components[cname][f] = val;
+      pushHistory();
+      renderInspector();
+    };
+  });
+  root.querySelectorAll('[data-cbool]').forEach(inp=>{
+    inp.onchange = ()=>{
+      const section = inp.closest('[data-comp]');
+      const cname = section.dataset.comp;
+      obj.components[cname][inp.dataset.cbool] = inp.checked;
+      pushHistory();
+    };
+  });
+  root.querySelectorAll('[data-rmcomp]').forEach(btn=>{
+    btn.onclick = ()=>{ delete obj.components[btn.dataset.rmcomp]; pushHistory(); renderInspector(); };
+  });
+  const addBtn = root.querySelector('#insp-add-comp');
+  const dd = root.querySelector('#comp-dropdown');
+  if(addBtn){
+    addBtn.onclick = (e)=>{ e.stopPropagation(); dd.classList.toggle('open'); };
+    root.querySelectorAll('[data-addcomp]').forEach(opt=>{
+      opt.onclick = ()=>{
+        const k = opt.dataset.addcomp;
+        if(!obj.components[k]) obj.components[k] = COMPONENT_DEFS[k].def();
+        dd.classList.remove('open');
+        pushHistory();
+        renderInspector();
+      };
+    });
+  }
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.component-menu')) $all('.component-dropdown').forEach(d=>d.classList.remove('open'));
+});
+
+/* =========================================================================
+   VARIABLES PANEL
+   ========================================================================= */
+function renderVariables(){
+  const wrap = $('#vars-list');
+  wrap.innerHTML = '';
+  App.project.variables.forEach(v=>{
+    const row = el('div','var-row');
+    row.innerHTML = `<input class="field-input vname" value="${escapeHtml(v.name)}">
+      <select class="field-input vtype"><option value="number" ${v.type==='number'?'selected':''}>Number</option><option value="string" ${v.type==='string'?'selected':''}>String</option><option value="boolean" ${v.type==='boolean'?'selected':''}>Boolean</option></select>
+      <input class="field-input vval" value="${v.value}">
+      <button class="mini-icon-btn" title="Delete">${IconManager.get('trash')}</button>`;
+    const [nameI,typeI,valI] = [row.querySelector('.vname'), row.querySelector('.vtype'), row.querySelector('.vval')];
+    nameI.onchange = ()=>{ v.name = nameI.value.trim()||v.name; pushHistory(); renderEvents(); };
+    typeI.onchange = ()=>{ v.type = typeI.value; pushHistory(); };
+    valI.onchange = ()=>{ v.value = coerceVar(v.type, valI.value); pushHistory(); };
+    row.querySelector('button').onclick = ()=>{ App.project.variables = App.project.variables.filter(x=>x!==v); pushHistory(); renderVariables(); renderEvents(); };
+    wrap.appendChild(row);
+  });
+}
+function coerceVar(type, raw){
+  if(type==='number') return parseFloat(raw)||0;
+  if(type==='boolean') return raw==='true'||raw===true;
+  return raw;
+}
+
+/* =========================================================================
+   EVENTS / RULES PANEL (visual trigger -> action builder)
+   ========================================================================= */
+const TRIGGERS = {
+  'GameStart': {label:'On Game Start', params:[]},
+  'KeyPress': {label:'On Key Press', params:[{k:'key', label:'Key', type:'select', options:['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS']}]},
+  'Collision': {label:'On Collision With', params:[{k:'targetName', label:'Object Name', type:'objname'}]},
+  'TriggerEnter': {label:'On Trigger Enter', params:[{k:'targetName', label:'Object Name', type:'objname'}]},
+  'Timer': {label:'On Timer (every N sec)', params:[{k:'seconds', label:'Seconds', type:'number', def:1}]},
+};
+const ACTIONS = {
+  'SetVar': {label:'Set Variable', params:[{k:'varName', label:'Variable', type:'varname'},{k:'value', label:'Value', type:'text'}]},
+  'AddVar': {label:'Add To Variable', params:[{k:'varName', label:'Variable', type:'varname'},{k:'value', label:'Amount', type:'number', def:1}]},
+  'SubVar': {label:'Subtract From Variable', params:[{k:'varName', label:'Variable', type:'varname'},{k:'value', label:'Amount', type:'number', def:1}]},
+  'MoveObject': {label:'Move Object', params:[{k:'targetName', label:'Object', type:'objname_self'},{k:'dx', label:'DX', type:'number', def:0},{k:'dy', label:'DY', type:'number', def:0}]},
+  'DestroyObject': {label:'Destroy Object', params:[{k:'targetName', label:'Object', type:'objname_self'}]},
+  'PlaySound': {label:'Play Sound', params:[{k:'assetId', label:'Sound', type:'audioasset'}]},
+  'ShowText': {label:'Show Text Object', params:[{k:'targetName', label:'Object', type:'objname'}]},
+  'HideText': {label:'Hide Text Object', params:[{k:'targetName', label:'Object', type:'objname'}]},
+  'RestartScene': {label:'Restart Scene', params:[]},
+};
+function newRule(){
+  return { id: Util.uid('rule'), trigger:'GameStart', triggerParams:{}, action:'SetVar', actionParams:{} };
+}
+function renderEvents(){
+  const wrap = $('#events-list');
+  wrap.innerHTML = '';
+  if(App.project.events.length===0) wrap.appendChild(el('div','empty-hint','Belum ada rule. Klik "Add Rule" untuk membuat logic — contoh: WHEN Key Press Space DO Move Object.'));
+  App.project.events.forEach((rule, idx)=>{
+    const card = el('div','rule-card');
+    card.innerHTML = `<div class="rule-row"><span class="rule-tag">WHEN</span>${paramSelectHTML('trigger', TRIGGERS, rule.trigger)}<button class="rule-del">${IconManager.get('close')}</button></div>`;
+    card.querySelector('.rule-del').onclick = ()=>{ App.project.events.splice(idx,1); pushHistory(); renderEvents(); };
+    const trigDef = TRIGGERS[rule.trigger];
+    if(trigDef.params.length){
+      const prow = el('div','rule-row');
+      trigDef.params.forEach(p=> prow.appendChild(paramFieldNode(p, rule.triggerParams, ()=>{ pushHistory(); })));
+      card.appendChild(prow);
+    }
+    const arow = el('div','rule-row');
+    arow.innerHTML = `<span class="rule-tag">DO</span>`;
+    const actSel = paramSelectNode('action', ACTIONS, rule.action, (val)=>{ rule.action=val; rule.actionParams={}; pushHistory(); renderEvents(); });
+    arow.appendChild(actSel);
+    card.appendChild(arow);
+    const actDef = ACTIONS[rule.action];
+    if(actDef.params.length){
+      const prow2 = el('div','rule-row');
+      actDef.params.forEach(p=> prow2.appendChild(paramFieldNode(p, rule.actionParams, ()=>{ pushHistory(); })));
+      card.appendChild(prow2);
+    }
+    // wire trigger select change
+    card.querySelector('select[data-role="trigger"]').onchange = (e)=>{ rule.trigger = e.target.value; rule.triggerParams={}; pushHistory(); renderEvents(); };
+    wrap.appendChild(card);
+  });
+}
+function paramSelectHTML(role, dict, current){
+  return `<select data-role="${role}">${Object.keys(dict).map(k=>`<option value="${k}" ${k===current?'selected':''}>${dict[k].label}</option>`).join('')}</select>`;
+}
+function paramSelectNode(role, dict, current, onchange){
+  const s = document.createElement('select'); s.dataset.role = role;
+  Object.keys(dict).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=dict[k].label; if(k===current) o.selected=true; s.appendChild(o); });
+  s.onchange = ()=> onchange(s.value);
+  return s;
+}
+function paramFieldNode(p, store, cb){
+  if(store[p.k]===undefined) store[p.k] = p.def!==undefined?p.def:'';
+  let node;
+  if(p.type==='select'){
+    node = document.createElement('select');
+    p.options.forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; if(o===store[p.k]) opt.selected=true; node.appendChild(opt); });
+    node.onchange = ()=>{ store[p.k]=node.value; cb(); };
+  } else if(p.type==='objname' || p.type==='objname_self'){
+    node = document.createElement('select');
+    const names = p.type==='objname_self' ? ['(self)', ...App.scene.objects.map(o=>o.name)] : App.scene.objects.map(o=>o.name);
+    names.forEach(n=>{ const opt=document.createElement('option'); opt.value=n==='(self)'?'':n; opt.textContent=n; if(opt.value===store[p.k]) opt.selected=true; node.appendChild(opt); });
+    node.onchange = ()=>{ store[p.k]=node.value; cb(); };
+  } else if(p.type==='varname'){
+    node = document.createElement('select');
+    App.project.variables.forEach(v=>{ const opt=document.createElement('option'); opt.value=v.name; opt.textContent=v.name; if(v.name===store[p.k]) opt.selected=true; node.appendChild(opt); });
+    node.onchange = ()=>{ store[p.k]=node.value; cb(); };
+  } else if(p.type==='audioasset'){
+    node = document.createElement('select');
+    App.project.assets.audio.forEach(a=>{ const opt=document.createElement('option'); opt.value=a.id; opt.textContent=a.name; if(a.id===store[p.k]) opt.selected=true; node.appendChild(opt); });
+    node.onchange = ()=>{ store[p.k]=node.value; cb(); };
+  } else {
+    node = document.createElement('input'); node.className='field-input';
+    node.type = p.type==='number' ? 'number' : 'text';
+    node.value = store[p.k];
+    node.onchange = ()=>{ store[p.k] = p.type==='number' ? (parseFloat(node.value)||0) : node.value; cb(); };
+  }
+  node.title = p.label;
+  return node;
+}
+
+/* =========================================================================
+   VIEWPORT — camera, grid, gizmos, selection, pointer/touch handling
+   ========================================================================= */
+let canvas, ctx;
+function initCanvas(){
+  canvas = $('#viewport'); ctx = canvas.getContext('2d');
+  resizeCanvas();
+  requestAnimationFrame(editorLoop);
+}
+function resizeCanvas(){
+  if(!canvas) return;
+  const wrap = $('#viewport-wrap');
+  const dpr = window.devicePixelRatio || 1;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const imageCache = new Map();
+function getImage(assetId){
+  const asset = App.project.assets.sprites.find(a=>a.id===assetId);
+  if(!asset) return null;
+  if(imageCache.has(assetId)) return imageCache.get(assetId);
+  const img = new Image(); img.src = asset.data;
+  imageCache.set(assetId, img);
+  return img;
+}
+function worldToScreen(x,y){
+  const wrap = $('#viewport-wrap');
+  const cx = wrap.clientWidth/2, cy = wrap.clientHeight/2;
+  return { x: cx + (x - App.camera.x) * App.camera.zoom, y: cy + (y - App.camera.y) * App.camera.zoom };
+}
+function screenToWorld(x,y){
+  const wrap = $('#viewport-wrap');
+  const cx = wrap.clientWidth/2, cy = wrap.clientHeight/2;
+  return { x: (x-cx)/App.camera.zoom + App.camera.x, y: (y-cy)/App.camera.zoom + App.camera.y };
+}
+function editorLoop(){
+  if(!App.playing) drawEditorFrame();
+  requestAnimationFrame(editorLoop);
+}
+function drawEditorFrame(){
+  const wrap = $('#viewport-wrap');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0c0d10'; ctx.fillRect(0,0,w,h);
+  // canvas bounds (project resolution) box
+  const tl = worldToScreen(0,0), br = worldToScreen(App.project.width, App.project.height);
+  ctx.fillStyle = '#131519'; ctx.fillRect(tl.x, tl.y, br.x-tl.x, br.y-tl.y);
+  ctx.strokeStyle = '#3a4048'; ctx.lineWidth=1; ctx.strokeRect(tl.x+0.5, tl.y+0.5, br.x-tl.x, br.y-tl.y);
+  if(App.showGrid) drawGrid(w,h);
+  // objects sorted by layer order
+  const layerOrder = ['Background','World','Player','Enemy','Foreground','UI'];
+  const sorted = [...App.scene.objects].sort((a,b)=> layerOrder.indexOf(a.layer)-layerOrder.indexOf(b.layer));
+  sorted.forEach(obj=> drawObject(obj));
+  if(App.selectedId){
+    const obj = getObject(App.selectedId);
+    if(obj) drawGizmo(obj);
+  }
+}
+function drawGrid(w,h){
+  const size = (App.scene.gridSize||32) * App.camera.zoom;
+  if(size < 4) return;
+  const originX = worldToScreen(0,0).x % size;
+  const originY = worldToScreen(0,0).y % size;
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.beginPath();
+  for(let x=originX; x<w; x+=size){ ctx.moveTo(x+0.5,0); ctx.lineTo(x+0.5,h); }
+  for(let y=originY; y<h; y+=size){ ctx.moveTo(0,y+0.5); ctx.lineTo(w,y+0.5); }
+  ctx.stroke();
+}
+function drawObject(obj){
+  if(!obj.visible) return;
+  const topLeft = worldToScreen(obj.x, obj.y);
+  const ww = obj.width*App.camera.zoom*obj.scaleX, hh = obj.height*App.camera.zoom*obj.scaleY;
+  ctx.save();
+  ctx.globalAlpha = obj.opacity!=null?obj.opacity:1;
+  ctx.translate(topLeft.x+ww/2, topLeft.y+hh/2);
+  ctx.rotate((obj.rotation||0)*Math.PI/180);
+  const sr = obj.components.SpriteRenderer;
+  const tr = obj.components.TextRenderer;
+  if(sr && sr.assetId){
+    const img = getImage(sr.assetId);
+    if(img && img.complete && img.naturalWidth){
+      ctx.save();
+      ctx.scale(sr.flipX?-1:1, sr.flipY?-1:1);
+      ctx.drawImage(img, -ww/2, -hh/2, ww, hh);
+      ctx.restore();
+    } else {
+      ctx.fillStyle='#2c313a'; ctx.fillRect(-ww/2,-hh/2,ww,hh);
+    }
+  } else if(tr){
+    ctx.fillStyle = tr.color||'#fff';
+    ctx.font = (tr.size||20)+'px '+(tr.font||'sans-serif');
+    ctx.textAlign = tr.align||'left'; ctx.textBaseline='middle';
+    ctx.fillText(tr.text||'', -ww/2, 0);
+  } else if(obj.components.Camera){
+    ctx.strokeStyle='#4f8ff7'; ctx.lineWidth=2; ctx.strokeRect(-ww/2,-hh/2,ww,hh);
+    ctx.fillStyle='rgba(79,143,247,0.12)'; ctx.fillRect(-ww/2,-hh/2,ww,hh);
+  } else {
+    ctx.fillStyle='rgba(79,143,247,0.14)'; ctx.strokeStyle='#4f8ff7'; ctx.lineWidth=1.5;
+    ctx.fillRect(-ww/2,-hh/2,ww,hh); ctx.strokeRect(-ww/2,-hh/2,ww,hh);
+  }
+  if(App.debug && obj.components.Collider){
+    ctx.strokeStyle = obj.components.Collider.isTrigger ? '#f2a93b' : '#3ecf8e';
+    ctx.setLineDash([4,3]);
+    ctx.strokeRect(-ww/2,-hh/2,ww,hh);
+    ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+const HANDLE = 8;
+function drawGizmo(obj){
+  const topLeft = worldToScreen(obj.x, obj.y);
+  const ww = obj.width*App.camera.zoom*obj.scaleX, hh = obj.height*App.camera.zoom*obj.scaleY;
+  ctx.save();
+  ctx.strokeStyle = '#4f8ff7'; ctx.lineWidth=1.5;
+  ctx.strokeRect(topLeft.x, topLeft.y, ww, hh);
+  if(App.tool==='scale'){
+    ctx.fillStyle = '#4f8ff7';
+    [[topLeft.x,topLeft.y],[topLeft.x+ww,topLeft.y],[topLeft.x,topLeft.y+hh],[topLeft.x+ww,topLeft.y+hh]].forEach(p=>{
+      ctx.fillRect(p[0]-HANDLE/2,p[1]-HANDLE/2,HANDLE,HANDLE);
+    });
+  } else if(App.tool==='rotate'){
+    const cx = topLeft.x+ww/2, cy = topLeft.y+hh/2;
+    ctx.beginPath(); ctx.arc(cx,cy, Math.max(ww,hh)/2+18, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, topLeft.y-18, 5, 0, Math.PI*2); ctx.fillStyle='#4f8ff7'; ctx.fill();
+  } else if(App.tool==='move'){
+    const cx = topLeft.x+ww/2, cy = topLeft.y+hh/2;
+    ctx.strokeStyle='#3ecf8e'; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+34,cy); ctx.stroke();
+    ctx.strokeStyle='#e5484d'; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy-34); ctx.stroke();
+  }
+  ctx.restore();
+}
+function hitTestObject(worldX, worldY){
+  const layerOrder = ['Background','World','Player','Enemy','Foreground','UI'];
+  const sorted = [...App.scene.objects].sort((a,b)=> layerOrder.indexOf(b.layer)-layerOrder.indexOf(a.layer));
+  for(const obj of sorted){
+    if(!obj.visible || obj.locked) continue;
+    if(worldX>=obj.x && worldX<=obj.x+obj.width*obj.scaleX && worldY>=obj.y && worldY<=obj.y+obj.height*obj.scaleY) return obj;
+  }
+  return null;
+}
+function snapVal(v){ if(!App.snap) return v; const g = App.scene.gridSize||32; return Math.round(v/g)*g; }
+
+/* ---- pointer interaction (mouse + touch) ---- */
+let drag = null; // {mode, obj, startWorld, startObj, lastTouches}
+function viewportPointerDown(clientX, clientY, touches){
+  if(App.playing) return;
+  const rect = canvas.getBoundingClientRect();
+  const sx = clientX-rect.left, sy = clientY-rect.top;
+  const world = screenToWorld(sx,sy);
+  if(touches && touches.length>=2){ drag = {mode:'pan-zoom', touches:Array.from(touches)}; return; }
+  const obj = hitTestObject(world.x, world.y);
+  if(obj){
+    if(App.selectedId !== obj.id) selectObject(obj.id);
+    drag = { mode:'transform', tool:App.tool, obj, startWorld:world, startObj:Util.clone(obj) };
+  } else {
+    App.selectedId = null; renderHierarchy(); renderInspector();
+    drag = { mode:'pan', startX:clientX, startY:clientY, camStart:{...App.camera} };
+  }
+}
+function viewportPointerMove(clientX, clientY, touches){
+  if(!drag) return;
+  if(drag.mode==='pan-zoom' && touches && touches.length>=2){
+    const [a,b] = touches;
+    const dist = Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+    if(drag.startDist==null){ drag.startDist=dist; drag.startZoom=App.camera.zoom; drag.midStart={x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2}; drag.camStart={...App.camera}; return; }
+    App.camera.zoom = Util.clamp(drag.startZoom * (dist/drag.startDist), 0.2, 4);
+    const midNow = {x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};
+    App.camera.x = drag.camStart.x - (midNow.x-drag.midStart.x)/App.camera.zoom;
+    App.camera.y = drag.camStart.y - (midNow.y-drag.midStart.y)/App.camera.zoom;
+    return;
+  }
+  if(drag.mode==='pan'){
+    App.camera.x = drag.camStart.x - (clientX-drag.startX)/App.camera.zoom;
+    App.camera.y = drag.camStart.y - (clientY-drag.startY)/App.camera.zoom;
+    return;
+  }
+  if(drag.mode==='transform'){
+    const rect = canvas.getBoundingClientRect();
+    const world = screenToWorld(clientX-rect.left, clientY-rect.top);
+    const dx = world.x-drag.startWorld.x, dy = world.y-drag.startWorld.y;
+    const obj = drag.obj;
+    if(drag.tool==='move' || drag.tool==='select'){
+      obj.x = snapVal(drag.startObj.x + dx); obj.y = snapVal(drag.startObj.y + dy);
+    } else if(drag.tool==='scale'){
+      obj.width = Math.max(8, drag.startObj.width + dx);
+      obj.height = Math.max(8, drag.startObj.height + dy);
+    } else if(drag.tool==='rotate'){
+      const cx = obj.x+obj.width/2, cy = obj.y+obj.height/2;
+      const ang = Math.atan2(world.y-cy, world.x-cx) * 180/Math.PI;
+      obj.rotation = Math.round(ang+90);
+    }
+    renderInspector();
+  }
+}
+function viewportPointerUp(){
+  if(drag && drag.mode==='transform') pushHistory();
+  drag = null;
+}
+function setupViewportEvents(){
+  canvas.addEventListener('mousedown', e=>{ viewportPointerDown(e.clientX,e.clientY); e.preventDefault(); });
+  window.addEventListener('mousemove', e=>{ if(drag) viewportPointerMove(e.clientX,e.clientY); });
+  window.addEventListener('mouseup', viewportPointerUp);
+  canvas.addEventListener('wheel', e=>{
+    e.preventDefault();
+    const factor = e.deltaY<0?1.1:0.9;
+    App.camera.zoom = Util.clamp(App.camera.zoom*factor, 0.2, 4);
+    updateZoomLabel();
+  }, {passive:false});
+  canvas.addEventListener('touchstart', e=>{
+    if(App.playing) return;
+    viewportPointerDown(e.touches[0].clientX, e.touches[0].clientY, e.touches);
+    e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchmove', e=>{
+    if(App.playing) return;
+    if(drag && drag.mode==='pan-zoom') viewportPointerMove(null,null,e.touches);
+    else if(e.touches.length===1) viewportPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    e.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener('touchend', e=>{ viewportPointerUp(); });
+  canvas.addEventListener('dragover', e=>e.preventDefault());
+  canvas.addEventListener('drop', e=>{
+    e.preventDefault();
+    const raw = e.dataTransfer.getData('text/gmac-asset');
+    if(!raw) return;
+    const {kind, id} = JSON.parse(raw);
+    if(kind==='sprite'){
+      const asset = App.project.assets.sprites.find(a=>a.id===id);
+      const rect = canvas.getBoundingClientRect();
+      const world = screenToWorld(e.clientX-rect.left, e.clientY-rect.top);
+      addSpriteObjectFromAsset(asset, world.x, world.y);
+    }
+  });
+}
+function updateZoomLabel(){ $('#zoomlabel').textContent = Math.round(App.camera.zoom*100)+'%'; }
+
+/* =========================================================================
+   RUNTIME ENGINE (used both for in-editor Play and for exported games)
+   This whole function is serialised via toString() into exported files,
+   so it must be fully self-contained (no closures over editor variables).
+   ========================================================================= */
+function createRuntime(canvasEl, project, opts){
+  opts = opts || {};
+  const ctx2 = canvasEl.getContext('2d');
+  const state = {
+    running:false, scene:null, vars:{}, camera:{x:0,y:0,zoom:1},
+    keys:{}, touchMove:{x:0,y:0}, touchJump:false,
+    imageCache:{}, audioCache:{}, triggered:{}, timers:{}, elapsed:0, fps:0,
+    frameCount:0, startedRules:false
+  };
+  function log(msg,level){ if(opts.onLog) opts.onLog(msg, level||'log'); else console.log(msg); }
+  function getAsset(list, id){ return (list||[]).find(a=>a.id===id); }
+  function getImg(id){
+    if(state.imageCache[id]) return state.imageCache[id];
+    const asset = getAsset(project.assets.sprites, id);
+    if(!asset) return null;
+    const img = new Image(); img.src = asset.data;
+    state.imageCache[id] = img; return img;
+  }
+  function getAudioEl(id){
+    if(state.audioCache[id]) return state.audioCache[id];
+    const asset = getAsset(project.assets.audio, id);
+    if(!asset) return null;
+    const a = new Audio(asset.data);
+    state.audioCache[id] = a; return a;
+  }
+  function findObj(name){ return state.scene.objects.find(o=>o.name===name); }
+  function getVar(name){ return state.vars[name]; }
+  function setVar(name,val){ state.vars[name]=val; }
+
+  function runAction(rule, ctxObj){
+    const p = rule.actionParams||{};
+    try{
+      switch(rule.action){
+        case 'SetVar': setVar(p.varName, coerceRuntimeVar(p.varName, p.value)); break;
+        case 'AddVar': setVar(p.varName, (getVar(p.varName)||0) + parseFloat(p.value||0)); break;
+        case 'SubVar': setVar(p.varName, (getVar(p.varName)||0) - parseFloat(p.value||0)); break;
+        case 'MoveObject': {
+          const t = p.targetName ? findObj(p.targetName) : ctxObj;
+          if(t){ t.x += parseFloat(p.dx||0); t.y += parseFloat(p.dy||0); }
+          break;
+        }
+        case 'DestroyObject': {
+          const t = p.targetName ? findObj(p.targetName) : ctxObj;
+          if(t) state.scene.objects = state.scene.objects.filter(o=>o!==t);
+          break;
+        }
+        case 'PlaySound': { const a = getAudioEl(p.assetId); if(a){ a.currentTime=0; a.play().catch(()=>{}); } break; }
+        case 'ShowText': { const t = findObj(p.targetName); if(t) t.visible = true; break; }
+        case 'HideText': { const t = findObj(p.targetName); if(t) t.visible = false; break; }
+        case 'RestartScene': resetScene(); break;
+      }
+    }catch(err){ log('Rule action error: '+err.message, 'error'); }
+  }
+  function coerceRuntimeVar(name, raw){
+    const def = project.variables.find(v=>v.name===name);
+    if(!def) return raw;
+    if(def.type==='number') return parseFloat(raw);
+    if(def.type==='boolean') return raw==='true'||raw===true;
+    return raw;
+  }
+  function evalTrigger(rule, dt){
+    const tp = rule.triggerParams||{};
+    if(rule.trigger==='GameStart') return !state.startedRules;
+    if(rule.trigger==='KeyPress') return !!state.keys[tp.key];
+    if(rule.trigger==='Timer'){
+      const key = rule.id;
+      state.timers[key] = (state.timers[key]||0) + dt;
+      const sec = parseFloat(tp.seconds||1);
+      if(state.timers[key] >= sec){ state.timers[key]=0; return true; }
+      return false;
+    }
+    return false; // Collision/TriggerEnter handled in collision pass
+  }
+  function processGlobalEvents(dt){
+    (project.events||[]).forEach(rule=>{
+      if(rule.trigger==='Collision' || rule.trigger==='TriggerEnter') return;
+      if(evalTrigger(rule, dt)) runAction(rule, null);
+    });
+    state.startedRules = true;
+  }
+  function processCollisionEvents(objA, objB, isTrigger){
+    (project.events||[]).forEach(rule=>{
+      const want = isTrigger ? 'TriggerEnter' : 'Collision';
+      if(rule.trigger!==want) return;
+      if(rule.triggerParams.targetName===objB.name){ runAction(rule, objA); }
+    });
+  }
+
+  function aabb(o){
+    const col = o.components.Collider;
+    if(col){ return { x:o.x+(col.offsetX||0), y:o.y+(col.offsetY||0), w:col.w||o.width, h:col.h||o.height }; }
+    return { x:o.x, y:o.y, w:o.width, h:o.height };
+  }
+  function intersects(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+
+  function physicsStep(dt){
+    const g = (project.settings && project.settings.gravity) || 1400;
+    state.scene.objects.forEach(o=>{
+      const rb = o.components.RigidBody;
+      if(!rb) return;
+      const pc = o.components.PlayerController;
+      if(pc){
+        let dir = 0;
+        if(state.keys['ArrowLeft']||state.keys['KeyA']) dir = -1;
+        if(state.keys['ArrowRight']||state.keys['KeyD']) dir = 1;
+        if(dir===0 && state.touchMove.x) dir = state.touchMove.x;
+        const control = o._grounded ? 1 : (pc.airControl!=null?pc.airControl:0.5);
+        rb.vx = dir * pc.speed * control + (o._grounded?0:rb.vx*(1-control)*0.02);
+        if((state.keys['ArrowUp']||state.keys['Space']||state.keys['KeyW']||state.touchJump) && o._grounded){
+          rb.vy = -pc.jumpForce; o._grounded = false;
+        }
+      }
+      rb.vy += g * (rb.gravityScale!=null?rb.gravityScale:1) * dt;
+      o.x += rb.vx*dt; o.y += rb.vy*dt;
+      o._grounded = false;
+    });
+    // collision resolution: dynamic (RigidBody) vs static colliders
+    state.scene.objects.forEach(dyn=>{
+      if(!dyn.components.RigidBody) return;
+      const rb = dyn.components.RigidBody;
+      const dbox = aabb(dyn);
+      state.scene.objects.forEach(other=>{
+        if(other===dyn) return;
+        const ocol = other.components.Collider;
+        if(!ocol) return;
+        const obox = aabb(other);
+        if(!intersects(dbox, obox)) return;
+        if(ocol.isTrigger){ processCollisionEvents(dyn, other, true); return; }
+        processCollisionEvents(dyn, other, false);
+        // resolve: push out along smallest overlap axis
+        const overlapX = Math.min(dbox.x+dbox.w-obox.x, obox.x+obox.w-dbox.x);
+        const overlapY = Math.min(dbox.y+dbox.h-obox.y, obox.y+obox.h-dbox.y);
+        if(overlapX < overlapY){
+          if(dbox.x < obox.x) dyn.x -= overlapX; else dyn.x += overlapX;
+          rb.vx *= -(rb.restitution||0);
+        } else {
+          if(dbox.y < obox.y){ dyn.y -= overlapY; dyn._grounded = true; } else { dyn.y += overlapY; }
+          rb.vy *= -(rb.restitution||0);
+        }
+        dbox.x = dyn.x; dbox.y = dyn.y;
+      });
+    });
+  }
+  function cameraStep(dt){
+    const camObj = state.scene.objects.find(o=>o.components.Camera);
+    if(!camObj){ state.camera.zoom=1; return; }
+    const cc = camObj.components.Camera;
+    let targetX = camObj.x, targetY = camObj.y;
+    if(cc.followTarget){
+      const t = findObj(cc.followTarget);
+      if(t){ targetX = t.x+t.width/2; targetY = t.y+t.height/2; }
+    }
+    const s = cc.smoothness!=null?cc.smoothness:0.12;
+    state.camera.x += (targetX-state.camera.x)*Util_clamp01(s);
+    state.camera.y += (targetY-state.camera.y)*Util_clamp01(s);
+    state.camera.zoom = cc.zoom||1;
+    if(cc.useBounds){
+      state.camera.x = Math.max(cc.boundsX, Math.min(cc.boundsX+cc.boundsW, state.camera.x));
+      state.camera.y = Math.max(cc.boundsY, Math.min(cc.boundsY+cc.boundsH, state.camera.y));
+    }
+  }
+  function Util_clamp01(v){ return Math.max(0,Math.min(1,v)); }
+  function animStep(dt){
+    state.scene.objects.forEach(o=>{
+      const an = o.components.Animator, sr = o.components.SpriteRenderer;
+      if(!an || !sr) return;
+      if(!an.playing) return;
+      an._t = (an._t||0)+dt;
+      const frameDur = 1/(an.fps||8);
+      if(an._t >= frameDur){
+        an._t = 0;
+        an._frame = (an._frame||0)+1;
+        if(an._frame >= (an.frameCount||1)){ an._frame = an.loop ? 0 : (an.frameCount-1); }
+      }
+    });
+  }
+  function w2s(x,y){
+    const cw = canvasEl.width/(window.devicePixelRatio||1), ch = canvasEl.height/(window.devicePixelRatio||1);
+    return { x: cw/2 + (x-state.camera.x)*state.camera.zoom, y: ch/2 + (y-state.camera.y)*state.camera.zoom };
+  }
+  function render(){
+    const dpr = window.devicePixelRatio||1;
+    const cw = canvasEl.width/dpr, ch = canvasEl.height/dpr;
+    ctx2.setTransform(dpr,0,0,dpr,0,0);
+    ctx2.clearRect(0,0,cw,ch);
+    ctx2.fillStyle = '#000'; ctx2.fillRect(0,0,cw,ch);
+    const layerOrder = ['Background','World','Player','Enemy','Foreground','UI'];
+    const sorted = [...state.scene.objects].sort((a,b)=>layerOrder.indexOf(a.layer)-layerOrder.indexOf(b.layer));
+    sorted.forEach(o=>{
+      if(!o.visible) return;
+      const tl = w2s(o.x,o.y);
+      const ww = o.width*state.camera.zoom*o.scaleX, hh = o.height*state.camera.zoom*o.scaleY;
+      ctx2.save();
+      ctx2.globalAlpha = o.opacity!=null?o.opacity:1;
+      ctx2.translate(tl.x+ww/2, tl.y+hh/2);
+      ctx2.rotate((o.rotation||0)*Math.PI/180);
+      const sr = o.components.SpriteRenderer, tr = o.components.TextRenderer, an = o.components.Animator;
+      if(sr && sr.assetId){
+        const img = getImg(sr.assetId);
+        if(img && img.complete && img.naturalWidth){
+          ctx2.save(); ctx2.scale(sr.flipX?-1:1, sr.flipY?-1:1);
+          if(an && an.cols>1 || an && an.rows>1){
+            const fw = img.naturalWidth/an.cols, fh = img.naturalHeight/an.rows;
+            const frame = an._frame||0;
+            const col = frame % an.cols, row = Math.floor(frame/an.cols);
+            ctx2.drawImage(img, col*fw, row*fh, fw, fh, -ww/2,-hh/2, ww, hh);
+          } else {
+            ctx2.drawImage(img, -ww/2,-hh/2, ww, hh);
+          }
+          ctx2.restore();
+        }
+      } else if(tr){
+        ctx2.fillStyle = tr.color||'#fff';
+        ctx2.font = (tr.size||20)+'px '+(tr.font||'sans-serif');
+        ctx2.textAlign = tr.align||'left'; ctx2.textBaseline='middle';
+        ctx2.fillText(tr.text||'', -ww/2, 0);
+      }
+      if(opts.debug && o.components.Collider){
+        ctx2.strokeStyle = o.components.Collider.isTrigger?'#f2a93b':'#3ecf8e';
+        ctx2.strokeRect(-ww/2,-hh/2,ww,hh);
+      }
+      ctx2.restore();
+    });
+    if(opts.debug){
+      const player = state.scene.objects.find(o=>o.components.PlayerController);
+      ctx2.fillStyle = '#7fe3a6'; ctx2.font='11px monospace'; ctx2.textAlign='left'; ctx2.textBaseline='top';
+      let dbg = 'FPS: '+state.fps+'\\nObjects: '+state.scene.objects.length;
+      if(player) dbg += '\\nPlayer: '+Math.round(player.x)+', '+Math.round(player.y);
+      dbg.split('\\n').forEach((line,i)=> ctx2.fillText(line, 8, 8+i*14));
+    }
+    if(opts.onVars) opts.onVars(state.vars);
+  }
+
+  let lastT = 0, fpsAcc=0, fpsCount=0;
+  function loop(t){
+    if(!state.running) return;
+    const dt = Math.min(0.033, (t-lastT)/1000 || 0); lastT = t;
+    fpsAcc += dt; fpsCount++;
+    if(fpsAcc>=0.5){ state.fps = Math.round(fpsCount/fpsAcc); fpsAcc=0; fpsCount=0; }
+    try{
+      processGlobalEvents(dt);
+      physicsStep(dt);
+      animStep(dt);
+      cameraStep(dt);
+      render();
+    }catch(err){ log('Runtime error: '+err.message, 'error'); }
+    requestAnimationFrame(loop);
+  }
+  function resetScene(){
+    state.scene = JSON.parse(JSON.stringify(project.scenes.find(s=>s.id===project.activeSceneId) || project.scenes[0]));
+    state.vars = {};
+    project.variables.forEach(v=> state.vars[v.name]=v.value);
+    state.timers = {}; state.startedRules = false;
+  }
+  const onKeyDown = e=>{ state.keys[e.code] = true; };
+  const onKeyUp = e=>{ state.keys[e.code] = false; };
+  function bindInput(){
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+  }
+  function unbindInput(){
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+  }
+  return {
+    start(){ resetScene(); state.running=true; bindInput(); lastT=performance.now(); requestAnimationFrame(loop); log('Game started.'); },
+    stop(){ state.running=false; unbindInput(); },
+    setTouchMove(x,y){ state.touchMove={x,y}; },
+    setTouchJump(v){ state.touchJump=v; },
+    getState(){ return state; }
+  };
+}
+
+/* =========================================================================
+   PLAY MODE (editor)
+   ========================================================================= */
+let runtimeInstance = null;
+function enterPlayMode(){
+  App.playing = true;
+  document.body.classList.add('playing');
+  App.project.activeSceneId = App.scene.id;
+  $('#playbar').classList.add('show');
+  runtimeInstance = createRuntime(canvas, App.project, {
+    debug: App.debug,
+    onLog: (m,l)=> logConsole(m,l)
+  });
+  runtimeInstance.start();
+  setupMobileControls();
+}
+function exitPlayMode(){
+  App.playing = false;
+  document.body.classList.remove('playing');
+  $('#playbar').classList.remove('show');
+  if(runtimeInstance){ runtimeInstance.stop(); runtimeInstance=null; }
+  resizeCanvas();
+}
+function setupMobileControls(){
+  const joy = $('#mobile-joy'), stick = joy.querySelector('.stick'), jump = $('#mobile-jump');
+  let active=false, cx=0, cy=0;
+  function reset(){ stick.style.left='30px'; stick.style.top='30px'; if(runtimeInstance) runtimeInstance.setTouchMove(0,0); }
+  joy.ontouchstart = (e)=>{ active=true; const r=joy.getBoundingClientRect(); cx=r.left+r.width/2; cy=r.top+r.height/2; e.preventDefault(); };
+  joy.ontouchmove = (e)=>{
+    if(!active) return;
+    const t = e.touches[0];
+    let dx = t.clientX-cx, dy = t.clientY-cy;
+    const max = 30; const d = Math.hypot(dx,dy);
+    if(d>max){ dx=dx/d*max; dy=dy/d*max; }
+    stick.style.left = (30+dx)+'px'; stick.style.top = (30+dy)+'px';
+    if(runtimeInstance) runtimeInstance.setTouchMove(Util.clamp(dx/max,-1,1), Util.clamp(dy/max,-1,1));
+    e.preventDefault();
+  };
+  joy.ontouchend = ()=>{ active=false; reset(); };
+  jump.ontouchstart = (e)=>{ if(runtimeInstance) runtimeInstance.setTouchJump(true); e.preventDefault(); };
+  jump.ontouchend = ()=>{ if(runtimeInstance) runtimeInstance.setTouchJump(false); };
+}
+
+/* =========================================================================
+   PROJECT SAVE / OPEN / EXPORT
+   ========================================================================= */
+function getRecentList(){ try{ return JSON.parse(localStorage.getItem('gmac_recent')||'[]'); }catch(e){ return []; } }
+function pushRecent(name){
+  let list = getRecentList().filter(n=>n!==name);
+  list.unshift(name);
+  list = list.slice(0,8);
+  localStorage.setItem('gmac_recent', JSON.stringify(list));
+  renderRecentMenu();
+}
+function renderRecentMenu(){
+  const list = getRecentList();
+  const menu = $('#recent-projects-menu');
+  const sep = $('#recent-sep');
+  menu.innerHTML = '';
+  if(list.length===0){ sep.style.display='none'; return; }
+  sep.style.display = 'block';
+  list.forEach(name=>{
+    const o = el('div','menu-opt', IconManager.get('folder')+'<span>'+escapeHtml(name)+'</span>');
+    o.onclick = ()=>{ closeAllMenus(); triggerOpenFile(); };
+    menu.appendChild(o);
+  });
+}
+function saveProject(forceDialog){
+  $('#projname').textContent = App.project.name;
+  const json = JSON.stringify(App.project, null, 0);
+  Util.download((App.project.name||'project')+'.gmac', json, 'application/json');
+  pushRecent(App.project.name);
+  logConsole('Project saved as '+App.project.name+'.gmac');
+}
+function triggerOpenFile(){
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='.gmac,application/json';
+  inp.onchange = ()=>{
+    const file = inp.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        App.project = data;
+        App.scene = App.project.scenes.find(s=>s.id===App.project.activeSceneId) || App.project.scenes[0];
+        App.selectedId = null;
+        App.history=[]; App.historyIndex=-1; pushHistory();
+        refreshAll();
+        pushRecent(App.project.name);
+        logConsole('Project loaded: '+App.project.name);
+      }catch(err){ logConsole('Failed to open project: '+err.message, 'error'); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+function renameProjectPrompt(){
+  const name = promptInline('Project name', App.project.name);
+  if(name){ App.project.name = name; $('#projname').textContent = name; pushHistory(); }
+}
+function promptInline(label, def){
+  const v = window.prompt(label, def);
+  return v;
+}
+
+function buildExportRuntimeSource(){
+  // Serialise the runtime factory + its helper so the exported page is self-contained.
+  return 'const createRuntime = ' + createRuntime.toString() + ';';
+}
+function exportSingleHTML(){
+  const projClone = Util.clone(App.project);
+  const runtimeSrc = buildExportRuntimeSource();
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(projClone.name)}</title>
+<style>html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;}
+#c{display:block;width:100%;height:100%;touch-action:none;}
+#joy{position:fixed;left:24px;bottom:24px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);display:none;}
+#joy .s{position:absolute;width:42px;height:42px;left:29px;top:29px;border-radius:50%;background:rgba(255,255,255,0.25);}
+#jump{position:fixed;right:24px;bottom:24px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.12);color:#fff;font:10px sans-serif;display:none;align-items:center;justify-content:center;}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="joy"><div class="s"></div></div>
+<div id="jump">JUMP</div>
+<script>
+const GAME_DATA = ${JSON.stringify(projClone)};
+${runtimeSrc}
+const canvas = document.getElementById('c');
+function resize(){ const dpr=window.devicePixelRatio||1; canvas.width=innerWidth*dpr; canvas.height=innerHeight*dpr; canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px'; }
+window.addEventListener('resize', resize); resize();
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints>0;
+if(isTouch){ document.getElementById('joy').style.display='block'; document.getElementById('jump').style.display='flex'; }
+const rt = createRuntime(canvas, GAME_DATA, {debug:false});
+rt.start();
+const joy=document.getElementById('joy'), stick=joy.querySelector('.s'), jump=document.getElementById('jump');
+let active=false,cx=0,cy=0;
+joy.addEventListener('touchstart',e=>{active=true;const r=joy.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;e.preventDefault();});
+joy.addEventListener('touchmove',e=>{ if(!active)return; const t=e.touches[0]; let dx=t.clientX-cx,dy=t.clientY-cy; const max=30; const d=Math.hypot(dx,dy); if(d>max){dx=dx/d*max;dy=dy/d*max;} stick.style.left=(29+dx)+'px'; stick.style.top=(29+dy)+'px'; rt.setTouchMove(Math.max(-1,Math.min(1,dx/max)), Math.max(-1,Math.min(1,dy/max))); e.preventDefault(); });
+joy.addEventListener('touchend',()=>{active=false; stick.style.left='29px'; stick.style.top='29px'; rt.setTouchMove(0,0);});
+jump.addEventListener('touchstart',e=>{rt.setTouchJump(true);e.preventDefault();});
+jump.addEventListener('touchend',()=>{rt.setTouchJump(false);});
+<\/script>
+</body></html>`;
+  Util.download((projClone.name||'game')+'.html', html, 'text/html');
+  logConsole('Exported standalone HTML: '+projClone.name+'.html');
+}
+function exportZip(){
+  const projClone = Util.clone(App.project);
+  const files = [];
+  // extract binary assets to real files, replace references with relative paths for portability
+  const assetPathMap = {};
+  projClone.assets.sprites.forEach((a,i)=>{
+    const ext = Util.extFromMime(a.mime);
+    const path = 'assets/sprite_'+i+'_'+sanitize(a.name)+'.'+ext;
+    assetPathMap[a.id] = path;
+    files.push({name:path, data: Util.dataURLtoBytes(a.data)});
+  });
+  projClone.assets.audio.forEach((a,i)=>{
+    const ext = Util.extFromMime(a.mime);
+    const path = 'assets/audio_'+i+'_'+sanitize(a.name)+'.'+ext;
+    assetPathMap[a.id] = path;
+    files.push({name:path, data: Util.dataURLtoBytes(a.data)});
+  });
+  const gameDataJson = JSON.stringify(projClone, null, 2);
+  files.push({name:'game-data.json', data: strToBytes(gameDataJson)});
+  const runtimeSrc = buildExportRuntimeSource();
+  const gameJs = `// GMAC exported runtime\nconst GAME_DATA = ${JSON.stringify(projClone)};\n${runtimeSrc}\nfunction boot(){\n  const canvas = document.getElementById('c');\n  function resize(){ const dpr=window.devicePixelRatio||1; canvas.width=innerWidth*dpr; canvas.height=innerHeight*dpr; canvas.style.width=innerWidth+'px'; canvas.style.height=innerHeight+'px'; }\n  window.addEventListener('resize', resize); resize();\n  const rt = createRuntime(canvas, GAME_DATA, {debug:false});\n  rt.start();\n}\nwindow.addEventListener('DOMContentLoaded', boot);\n`;
+  files.push({name:'game.js', data: strToBytes(gameJs)});
+  const indexHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(projClone.name)}</title>
+<style>html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;}#c{display:block;width:100%;height:100%;}</style></head>
+<body><canvas id="c"></canvas><script src="game.js"><\/script></body></html>`;
+  files.push({name:'index.html', data: strToBytes(indexHtml)});
+  const zipBytes = ZipWriter.build(files);
+  Util.download((projClone.name||'game')+'.zip', new Blob([zipBytes]), 'application/zip');
+  logConsole('Exported ZIP package: '+projClone.name+'.zip ('+files.length+' files)');
+}
+function strToBytes(s){ return new TextEncoder().encode(s); }
+function sanitize(name){ return name.replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,24); }
+
+/* =========================================================================
+   REFRESH / WIRING
+   ========================================================================= */
+function refreshAll(){
+  $('#projname').textContent = App.project.name;
+  renderHierarchy(); renderInspector(); renderAssets(); renderVariables(); renderEvents();
+  updateUndoRedoButtons();
+  $('#status-scene').textContent = 'Scene: '+App.scene.name;
+  updateZoomLabel();
+  $('#btn-grid').classList.toggle('active', App.showGrid);
+  $('#btn-snap').classList.toggle('active', App.snap);
+}
+function setTool(tool){
+  App.tool = tool;
+  $all('.tbtn[data-tool]').forEach(b=> b.classList.toggle('active', b.dataset.tool===tool));
+  $('#status-tool').textContent = 'Tool: '+tool.charAt(0).toUpperCase()+tool.slice(1);
+}
+function closeAllMenus(){ $all('.menu-item.open').forEach(m=>m.classList.remove('open')); }
+function openSheet(id){ $('#'+id).classList.add('show'); $('#scrim').classList.add('show'); }
+function closeSheet(id){ $('#'+id).classList.remove('show'); $('#scrim').classList.remove('show'); }
+
+function wireUI(){
+  // menus
+  $all('.menu-item').forEach(m=>{
+    m.querySelector('.menu-label').onclick = (e)=>{
+      e.stopPropagation();
+      const wasOpen = m.classList.contains('open');
+      closeAllMenus();
+      if(!wasOpen) m.classList.add('open');
+    };
+  });
+  document.addEventListener('click', closeAllMenus);
+
+  $all('.menu-opt[data-act]').forEach(opt=>{
+    opt.addEventListener('click', ()=>{ closeAllMenus(); handleAction(opt.dataset.act); });
+  });
+
+  // tabs (left/bottom panels)
+  $all('.tabs').forEach(tabBar=>{
+    tabBar.querySelectorAll('.tab').forEach(tab=>{
+      tab.onclick = ()=>{
+        const parent = tabBar.parentElement;
+        tabBar.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        parent.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active', p.dataset.pane===tab.dataset.tab));
+      };
+    });
+  });
+
+  // toolbar tools
+  $all('.tbtn[data-tool]').forEach(b=> b.onclick = ()=> setTool(b.dataset.tool));
+  $('#btn-undo').onclick = undo;
+  $('#btn-redo').onclick = redo;
+  $('#btn-add-object').onclick = ()=> addObject('sprite');
+  $('#btn-add-object-2').onclick = ()=> addObject('sprite');
+  $('#btn-delete-object').onclick = ()=>{ if(App.selectedId) deleteObject(App.selectedId); };
+  $('#btn-grid').onclick = ()=>{ App.showGrid=!App.showGrid; $('#btn-grid').classList.toggle('active',App.showGrid); };
+  $('#btn-snap').onclick = ()=>{ App.snap=!App.snap; $('#btn-snap').classList.toggle('active',App.snap); };
+  $('#btn-zoom-in').onclick = ()=>{ App.camera.zoom=Util.clamp(App.camera.zoom*1.2,0.2,4); updateZoomLabel(); };
+  $('#btn-zoom-out').onclick = ()=>{ App.camera.zoom=Util.clamp(App.camera.zoom/1.2,0.2,4); updateZoomLabel(); };
+
+  $('#btn-play').onclick = ()=>{ App.playing ? exitPlayMode() : enterPlayMode(); $('#btn-play').innerHTML = IconManager.get(App.playing?'stop':'play'); $('#btn-play').classList.toggle('stop',App.playing); $('#btn-play').classList.toggle('play',!App.playing); };
+  $('#btn-stop-inline').onclick = ()=>{ exitPlayMode(); $('#btn-play').innerHTML = IconManager.get('play'); $('#btn-play').classList.remove('stop'); $('#btn-play').classList.add('play'); };
+  $('#btn-export').onclick = (e)=>{ e.stopPropagation(); exportSingleHTML(); };
+
+  // hierarchy search
+  $('#hier-search').oninput = renderHierarchy;
+
+  // assets import
+  $('#btn-import-sprite').onclick = ()=> $('#file-import-image').click();
+  $('#btn-import-audio').onclick = ()=> $('#file-import-audio').click();
+  $('#file-import-image').onchange = (e)=> importImages(e.target.files);
+  $('#file-import-audio').onchange = (e)=> importAudio(e.target.files);
+
+  // console
+  $('#btn-clear-console').onclick = ()=>{ $('#console-list').innerHTML=''; };
+
+  // events / variables
+  $('#btn-add-rule').onclick = ()=>{ App.project.events.push(newRule()); pushHistory(); renderEvents(); };
+  $('#btn-add-var').onclick = ()=>{ App.project.variables.push({id:Util.uid('var'), name:'newVar', type:'number', value:0}); pushHistory(); renderVariables(); };
+
+  // sheets (mobile)
+  $('#btn-open-leftdrawer').onclick = ()=> openMobilePanels();
+  $all('[data-close]').forEach(b=> b.onclick = ()=> closeSheet(b.dataset.close));
+  $('#scrim').onclick = ()=>{ $all('.sheet.show').forEach(s=>s.classList.remove('show')); $('#leftpanel').classList.remove('drawer-open'); $('#scrim').classList.remove('show'); };
+
+  // resize handles
+  setupResizeHandle('#resize-left', '#leftpanel', 'x');
+  setupResizeHandle('#resize-right', '#rightpanel', 'x-reverse');
+  setupResizeHandle('#resize-bottom', '#bottompanel', 'y-reverse-panel');
+
+  // keyboard shortcuts (editor, not playing)
+  window.addEventListener('keydown', (e)=>{
+    if(App.playing) return;
+    if(document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+    if(e.ctrlKey || e.metaKey){
+      if(e.key==='z'){ e.preventDefault(); undo(); }
+      else if(e.key==='y'){ e.preventDefault(); redo(); }
+      else if(e.key==='s'){ e.preventDefault(); saveProject(); }
+      else if(e.key==='d'){ e.preventDefault(); if(App.selectedId) duplicateObject(App.selectedId); }
+      else if(e.key==='c'){ if(App.selectedId) App.clipboard = Util.clone(getObject(App.selectedId)); }
+      else if(e.key==='v'){ if(App.clipboard){ const c=Util.clone(App.clipboard); c.id=Util.uid('go'); c.x+=20;c.y+=20; App.scene.objects.push(c); pushHistory(); renderHierarchy(); selectObject(c.id); } }
+      else if(e.key==='0'){ e.preventDefault(); App.camera.zoom=1; updateZoomLabel(); }
+      return;
+    }
+    if(e.key==='v'||e.key==='V') setTool('select');
+    else if(e.key==='m'||e.key==='M') setTool('move');
+    else if(e.key==='s'||e.key==='S') setTool('scale');
+    else if(e.key==='r'||e.key==='R') setTool('rotate');
+    else if(e.key==='Delete'||e.key==='Backspace'){ if(App.selectedId){ deleteObject(App.selectedId); } }
+    else if(e.key==='F3'){ e.preventDefault(); App.debug=!App.debug; $('#viewport-hud').style.display=App.debug?'block':'none'; }
+  });
+  window.addEventListener('keydown', (e)=>{ if(App.playing && e.key==='F3'){ App.debug=!App.debug; } });
+
+  setupViewportEvents();
+}
+function openMobilePanels(){
+  // Slide the real, already-wired Hierarchy/Assets panel in as an overlay drawer
+  // (no DOM re-parenting, so the layout reverts cleanly if the viewport widens again).
+  $('#leftpanel').classList.add('drawer-open');
+  $('#scrim').classList.add('show');
+}
+function setupResizeHandle(handleSel, panelSel, mode){
+  const handle = $(handleSel), panel = $(panelSel);
+  let startX, startY, startSize;
+  handle.addEventListener('mousedown', (e)=>{
+    startX=e.clientX; startY=e.clientY; startSize = mode.startsWith('x') ? panel.offsetWidth : panel.offsetHeight;
+    handle.classList.add('active');
+    function move(ev){
+      if(mode==='x'){ panel.style.width = Util.clamp(startSize+(ev.clientX-startX),160,480)+'px'; }
+      else if(mode==='x-reverse'){ panel.style.width = Util.clamp(startSize-(ev.clientX-startX),160,480)+'px'; }
+      else if(mode==='y-reverse-panel'){ panel.style.height = Util.clamp(startSize-(ev.clientY-startY),80,420)+'px'; }
+      resizeCanvas();
+    }
+    function up(){ handle.classList.remove('active'); window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); }
+    window.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+  });
+}
+
+function handleAction(act){
+  switch(act){
+    case 'new-project': if(confirm('Buat project baru? Perubahan yang belum disimpan akan hilang.')) newProject(); break;
+    case 'open-project': triggerOpenFile(); break;
+    case 'save-project': saveProject(); break;
+    case 'save-as-project': { const n = promptInline('Simpan sebagai (nama project)', App.project.name); if(n){ App.project.name=n; } saveProject(); break; }
+    case 'export-html': exportSingleHTML(); break;
+    case 'export-zip': exportZip(); break;
+    case 'undo': undo(); break;
+    case 'redo': redo(); break;
+    case 'copy': if(App.selectedId) App.clipboard = Util.clone(getObject(App.selectedId)); break;
+    case 'paste': if(App.clipboard){ const c=Util.clone(App.clipboard); c.id=Util.uid('go'); c.x+=20;c.y+=20; App.scene.objects.push(c); pushHistory(); renderHierarchy(); selectObject(c.id); } break;
+    case 'duplicate': if(App.selectedId) duplicateObject(App.selectedId); break;
+    case 'delete-obj': if(App.selectedId) deleteObject(App.selectedId); break;
+    case 'toggle-grid': App.showGrid=!App.showGrid; $('#btn-grid').classList.toggle('active',App.showGrid); break;
+    case 'toggle-snap': App.snap=!App.snap; $('#btn-snap').classList.toggle('active',App.snap); break;
+    case 'zoom-reset': App.camera.zoom=1; updateZoomLabel(); break;
+    case 'toggle-debug': App.debug=!App.debug; $('#viewport-hud').style.display=App.debug?'block':'none'; break;
+    case 'about': alert('GMAC Software\\nGame Maker & Creation\\nVersion 1.0 — 2D game maker berjalan sepenuhnya di browser.'); break;
+  }
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+function init(){
+  bindIcons();
+  newProject();
+  initCanvas();
+  wireUI();
+  ResponsiveUIManager.init();
+  setInterval(()=>{ if(!App.playing){} }, 1000);
+  logConsole('GMAC Software ready.');
+}
+document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
